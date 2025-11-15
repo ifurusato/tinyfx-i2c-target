@@ -1,0 +1,401 @@
+# Copyright 2020-2025 by Murray Altheim. All rights reserved. This file is part
+# of the Robot Operating System project, released under the MIT License. Please
+# see the LICENSE file included as part of this package.
+#
+# ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+#       YAML configuration for K-Series Robot Operating System (KROS)
+# ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+
+krosd:
+    application:                          'kros'           # the application to start via daemon ('kros')
+    toggle_pin:                              10            # Rx=8, Tx=10; the GPIO pin connected to the 'enable' toggle switch
+
+kros:
+    arguments:                                             # CLI arguments are copied here (required section)
+        nada:                             False            # nada
+    component:
+        enable_motor_controller:           True            # enable Motor 2040
+        enable_external_clock:             True            # if True use external clock, ignoring loop delay value
+        enable_behaviours:                 True            # enable BehaviourManager (Behaviours are enabled individually)
+        # publishers .......................................
+        enable_queue_publisher:            True            # publishes from globally-available queue
+#       enable_distance_publisher:         True            # enable Distance Sensors and Publisher
+        enable_system_publisher:          False            # enable System Publisher
+        enable_tinyfx_controller:          True            # enable Tiny FX for sounds and lighting fx
+#       enable_imu_publisher:             False            # enable IMU publisher
+#       enable_pir_publisher:              True            # enable PIR publisher
+#       enable_remote_ctrl_publisher:     False            # enable Remote Control Publisher
+#       enable_rtof_publisher:            False            # enable Ranging ToF publisher
+        enable_gamepad_publisher:         False            # enable gamepad support
+#       enable_killswitch:                 True            # enable toggle kill switch
+#       enable_pushbutton:                 True            # enable pushbutton
+#       enable_eyeballs  :                 True            # enable eyeballs
+        # subscribers ......................................
+#       enable_distance_subscriber:       False            # enable Distance Sensors Subscriber
+        enable_sound_subscriber:           True            # enable sounds for various events
+    behaviour:
+        idle:
+            enable:                     False              # enable idle behaviour
+            release:                    False              # release idle behaviour on startup
+            idle_threshold_sec:            20              # how many seconds before we trigger an idle behaviour
+            loop_freq_hz:                   1              # main loop delay in hz
+        roam:
+            enable:                      True              # enable roam behaviour
+            release:                     True              # release roam behaviour on startup
+            verbose:                    False
+            poll_delay_ms:                 80              # asyncio poll delay in milliseconds
+            default_speed:                  0.8            # cruising speed
+            use_dynamic_speed:           True              # if True use digital pot for default speed
+            use_dynamic_heading:         True              # if True use RGB encoder for setting heading
+            use_world_coordinates:       True              # use robot- or world-relative coordinates for vector (requires IMU)
+            heading_mode:               'NONE'             # NONE, RELATIVE, ABSOLUTE or BLENDED
+            loop_freq_hz:                   1              # main loop delay in hz
+        radiozoa:
+            enable:                     False              # enable radiozoa behaviour
+            release:                    False              # release radiozoa behaviour on startup
+            dynamic_speed:               True              # if True use digital pot for default speed
+            loop_delay_ms:                 50
+            default_speed:                  0.8            # cruising speed
+    message_bus:
+        max_age_ms:                        20.0            # maximum age of a message before expiry
+        publish_delay_sec:                 0.05            # publishing delay loop
+        clip_event_list:                  False            # if True clip length of displayed event list
+        clip_length:                         42            # max length of displayed event list
+    publisher:
+        system:
+            enable_battery_messaging:     False            # if True we enable low battery messages to be sent
+            enable_regulator_messaging:    True            # if True we enable low regulator messages to be sent
+            publish_delay_sec:                0.5          # publishing delay loop
+        gamepad:
+            publish_delay_sec:                0.05         # publishing delay loop
+        queue:
+            loop_freq_hz:                    50            # polling loop frequency (Hz)
+        distance_sensors:                                  # distance sensors publisher (not hardware)
+            loop_freq_hz:                      20          # main loop delay in hz
+            sense_threshold:                  150          # threshold in millimeters to react to an obstacle
+            bump_threshold:                    70          # threshold in millimeters to consider as a bump
+    subscriber:
+        distance_sensors:
+            verbose:                       True            # noisy sensor output
+    motor_controller:
+        closed_loop:                       True            # open or closed loop control
+        create_external_clock:             True            # create external clock if not provided
+        loop_freq_hz:                        20            # main loop delay in hz (only used when no ext clock)
+        verbose:                          False            # noisy messaging
+        halt_rate:                    'SLOWEST'            # slew rate for quick halt behaviour
+        brake_rate:                   'SLOWEST'            # slew rate for slower braking behaviour
+        max_speed:                          100.0          # maximum motor speed (0.0-1.0)
+        rotation_speed:                       0.25         # motor speed when rotating in place
+#       spin_speed:                 'TWO_THIRDS'           # motor speed when spinning (KROS)
+#       use_speed_indicator:              False            # publish RGB events for motor speed indication
+        accel_step:                           0.01         # step size for acceleration
+        accel_step_delay_ms:                 20            # acceleration step delay in milliseconds
+        decel_step:                           0.01         # step size for deceleration
+        decel_step_delay_ms:                 20            # deceleration step delay in milliseconds
+        coasting_steps:                     300            # determines coasting deceleration (unused)
+        braking_steps:                       60            # determines braking deceleration (unused)
+        stopping_steps:                      10            # determines stopping deceleration (unused)
+    geometry:                                              # robot geometry (e.g., KR01)
+        wheel_diameter:                     104            # wheel diameter (mm)
+        wheel_base:                         148            # wheel base (mm), distance between front and rear axles
+        wheel_track:                        186            # wheel base (mm), distance between left and right wheel centerlines
+        steps_per_rotation:                2774.64         # encoder steps per wheel rotation
+    motor:
+        thunderborg_port_address:          0x15            # I²C address for port thunderborg motor controller
+        thunderborg_stbd_address:          0x16            # I²C address for starboard thunderborg motor controller
+        motor_voltage:                       12            # the voltage rating of the motor
+        motor_power_limit:                 0.90            # upper and lower (x -1) limit set on power sent to motor
+        scale_factor_open:                  1.5            # a constant multiplier determines max power sent to motors (7 maxes them out at 0.9)
+        scale_factor_closed:                5.0            # a constant multiplier determines max power sent to motors (7 maxes them out at 0.9)
+        enable_slew_limiter:               True            # initial enabled state for slew limiter (if disabled, no halt or brake)
+        enable_jerk_limiter:              False            # initial enabled state for jerk limiter
+        reverse_motor_pfwd:               False            # in case you wire up the motors backwards
+        reverse_motor_sfwd:                True            # ditto
+        reverse_motor_paft:               False            # ditto
+        reverse_motor_saft:                True            # ditto
+        odometry:
+            motor_encoder_sfwd_a:            26            # stbd fwd A channel
+            motor_encoder_sfwd_b:            19            # stbd fwd B channel
+            motor_encoder_pfwd_a:            21            # port fwd A channel
+            motor_encoder_pfwd_b:            20            # port fwd B channel
+            motor_encoder_saft_a:             6            # stbd aft A channel
+            motor_encoder_saft_b:             5            # stbd aft B channel
+            motor_encoder_paft_a:            16            # port aft A channel
+            motor_encoder_paft_b:            12            # port aft B channel
+            reverse_encoder_pfwd:          True            # in case you wire up the encoders backwards
+            reverse_encoder_sfwd:         False            # ditto
+            reverse_encoder_paft:          True            # ditto
+            reverse_encoder_saft:         False            # ditto
+        pid_controller:
+            kp:                               0.05000      # proportional gain
+            ki:                               0.00500      # integral gain
+            kd:                               0.00000      # derivative gain
+            minimum_output:                 -10.0          # lower output limit
+            maximum_output:                  10.0          # upper output limit
+            sample_freq_hz:                  20            # 20Hz equiv to 50ms/0.05s
+            hyst_queue_len:                  20            # size of queue used for running average for hysteresis
+        slew_limiter:
+            minimum_output:                  -1.0          # lower limit of permitted speed output values
+            maximum_output:                   1.0          # upper limit, both should match motor_controller:scale_factor
+            default_rate:               'NORMAL'           # select value of enum: SLOWEST, SLOWER, SLOW, NORMAL, FAST, FASTER, FASTEST
+            hysteresis:                       2.0          # how close do we get to the target speed?
+        jerk_limiter:
+            jerk_tolerance:                  10            # percentage limit of permitted change per iteration
+    hardware:
+        system:
+            battery_channel:                  1            # AD channel for raw battery voltage
+            regulator_channel:                2            # AD channel for regulated 3V3
+            low_12v_battery_threshold:     11.1            # low 12v battery threshold
+            low_5v_regulator_threshold:    4.95            # low 5V regulator threshold
+            low_3v3_regulator_threshold:   3.25            # low 3.3V regulator threshold
+            battery_12v_channel:       'in0/ref'           # ADS1015 channel for 12V
+            reg_5v_channel:            'in2/ref'           # ADS1015 channel for 5V
+            reg_3v3_channel:           'in1/ref'           # ADS1015 channel for 3V3
+            system_current_max:               5.0          # alarm over current
+            temperature_warning:             55.0          # over temperature warning alarm 
+            temperature_error:               65.0          # over temperature error alarm
+            loop_delay_sec:                  60            # sample loop delay (sec)
+            external_threshold:              14.0          # anything higher than this indicates an external supply
+            green_threshold:                 11.5          # green/4 bars on battery
+            yellow_threshold:                11.0          # yellow/4 bars on battery
+            amber_threshold:                 10.29         # amber/3 bars on battery
+            orange_threshold:                10.15         # orange/2 bars on battery
+            red_threshold:                    9.85         # red/1 bar on battery
+        depth_camera:
+            preset_mode:              'ROBOTICS'           # preset depth camera mode
+            extended_disparity:           False            # closer-in minimum depth, disparity range is doubled (from 95 to 190)
+            subpixel:                     False            # better accuracy for longer distance, fractional disparity 32-levels
+            left_right_check:              True            # better handling for occlusions
+        button:                                            # GPIO or IO Expander-based simple button or switch
+            pin:                             24            # GPIO pin used
+        digital_potentiometer:                             # IO Expander-based Digital Potentiometer breakout
+            i2c_address:                   0x0C            # I²C address for the device
+            brightness:                     1.0            # brightness of the RGB LED (0.0-1.0)
+        compass_encoder:                                   # IO Expander-based RGB Encoder breakout
+            i2c_address:                   0x0F            # I²C address for the device
+            brightness:                     1.0            # brightness of the RGB LED (0.0-1.0)
+            wrap:                            24            # 24 is one pot turn per compass rotation, 360 is max/very slow
+        lux_sensor:
+            lux_threshold:                200.0            # threshold of light/dark
+        distance_sensor:       
+            pin-fwd:                         18            # the input pin for the forward sensor
+            pin-psid:                        14            # the input pin for the port side sensor
+            pin-ssid:                        15            # the input pin for the starboard side sensor
+            timeout:                          1            # time in seconds to consider sensor as timed out 
+            smoothing:                     True            # enable smoothing of distance readings
+            smoothing_window:                 5            # number of samples to use for smoothing
+            use_ext_clock:                 True            # if True poll on callback from external clock if available
+            loop_interval:                  0.1            # interval between distance polling, in seconds
+        distance_sensors:                                  # distance sensors (trio of distance sensors)
+            min_distance:                     1            # practical minimum distance in mm
+            max_distance:                   270            # practical maximum distance in mm
+            easing:                     'LINEAR'           # normalisation easing formula, see hardware.easing
+        vl53l5cx:
+            i2c_bus_number:                   0            # i2c bus 0 or 1
+            cols:                             8
+            rows:                             8
+            fov:                             47
+            calibration_samples:             10            # how many samples to determine floor rows?
+            stddev_threshold:               100
+            floor_margin:                    50            # in millimeters
+            minimum_free_distance:          500            # minimum required free space, in millimeters
+            poll_interval:                    0.05         # how often to poll VL53L5CX
+        roam_sensor:
+            smoothing:                     True            # enable smoothing of fused distance
+            smoothing_window:                 5            # window size for moving average
+            sigmoid_d0:                     150            # sigmoid inflection point (mm)
+            sigmoid_k:                       40            # sigmoid steepness
+            min_distance:                   200            # minimum distance in mm of VL53L5CX
+            max_distance:                  1111            # maximum distance in mm of VL53L5CX (actual range is 4m)
+            pwm_max_range:                  250            # max sensor range (mm) of PWM sensor
+            use_sigmoid_fusion:           False            # use either sigmoid or minimum fusion
+            easing:                     'LINEAR'           # normalisation easing formula, see hardware.easing
+        open_path_sensor:
+            distance_threshold:            1000            # pay no attention to anything beyond 1000mm
+            loop_freq_hz:                     5            # control loop frequency (Hz)
+            alpha:                          0.8            # low-pass filter coefficient, near 1.0 responds quickly, near 0.0 very slowly
+        usfs:
+            declination:                     23.04         # declination at operating location
+        icm20948:
+            i2c_address:                   0x69            # I²C address (default 0x68)
+            poll_rate_hz:                   150            # how often the IMU is polled
+            vertical_mount:                True            # vertical like Pimoroni, or horizontal like Adafruit
+            bench_calibrate:               True            # if true, calibrate the IMU manually while on the rotating bench
+            motion_calibrate:             False            # if true, calibrate the IMU by the robot rotating in place
+            show_console:                  True            # if true, show data on console (same as verbose)
+            show_rgbmatrix5x5:             True            # if true, show heading as color
+            show_rgbmatrix11x7:            True            # if true, show heading as number
+            adjust_trim:                  False            # if true, use pot for trim, otherwise used fixed value
+            pitch_trim:                    0.0             # pitch trim for level
+            roll_trim:                     4.0             # roll trim for level
+            heading_trim:                  1.55            # heading trim adjustment (in radians) to set north (was 0.15 on MR01)
+            queue_length:                   100            # length of heading data queue
+            stability_threshold:              5.0          # max standard deviation to determine stability
+            cardinal_tolerance:               0.0698132    # tolerance to cardinal points (4° in radians)
+#           cardinal_tolerance:               0.0523599    # tolerance to cardinal points (3° in radians)
+            include_accel_gyro:            True            # if true, poll heading data
+            include_heading:               True            # if true, poll accelerometer and gyroscope data
+            play_sound:                    True            # if True, play sound to indicate calibration
+        irq_clock:                                         # external clock
+            pin:                             23            # GPIO pin connected to an external clock source
+            freq_divider:                    50            # tick divisor for lower frequency callback
+        monitor:
+            i2c_port:                         0
+            i2c_address:                   0x3C
+            contrast:                      0x3F            # 0x-00-0xFF screen brightness
+            update_rate_hz:                   1            # update rate in Hz
+            use_thread:                   False            # if an external clock is not supplied, use a thread for the update loop
+            rotate:                           1            # values 0: 180°; 1: -90°; 2: 0°; 3: 90°
+            permit_callback:               False           # setting True may introduce message timing issues
+            font_size:                       10            # main font size
+            font_size_full:                   8            # font size for bar
+            font_size_message:               15            # message font size
+            font_name:      'Varela-Regular.ttf'           # font family
+        ina260:
+            i2c_address:                   0x40            # I²C address (default 0x40)
+        tinyfx-controller:
+            i2c_address:                   0x44
+            bus_number:                       1
+            pin_1:                           14            # pin on the IO Expander (SCL blue)
+            pin_2:                           12            # pin on the IO Expander (SDA yellow)
+            enable_mast_light:             True            # flashing white mast light
+            enable_nav_lights:             True            # port and starboard running lights
+        player:                                            # Tiny FX sound player
+            verbose:                       True            # verbose messaging
+        gamepad:
+            enabled:                       True
+            device_path:     '/dev/input/event7'           # the path to the bluetooth gamepad on the pi (see find_gamepad.py)
+            loop_delay:                       0.01         # main loop delay was sleep(0.01) or 1/100th second, or 10ms. 50ms is the delay for 20Hz, so 10ms is 5x 20Hz or 100Hz.
+            suppress_horiz_events:         True            # ignore horizontal joystick events
+            loop_freq_hz:                   100            # polling loop frequency (Hz)
+        radiozoa:
+            i2c_bus_number:                   1            # use I2C1 or alternate I2C0
+            ioe_i2c_address:               0x18            # if the IO Expander is available it will be used
+            devices:
+                0:
+                    label:      'N0'
+                    enabled:     True
+                    i2c_address: 0x30
+                    xshut:       7                         # grey:red (GPIO 21)
+                1:
+                    label:      'NE1'
+                    enabled:     True
+                    i2c_address: 0x31
+                    xshut:       8                         # white:red (GPIO 26)
+                2:
+                    label:      'E2'
+                    enabled:     True
+                    i2c_address: 0x32
+                    xshut:       9                         # grey:green (GPIO 20)
+                3:
+                    label:      'SE3'
+                    enabled:     True
+                    i2c_address: 0x33
+                    xshut:       10                        # white:green (GPIO 19) 10
+                4:
+                    label:      'S4'
+                    enabled:     True
+                    i2c_address: 0x34
+                    xshut:       11                        # grey:blue (GPIO 16) 11
+                5:
+                    label:      'SW5'
+                    enabled:     True
+                    i2c_address: 0x35
+                    xshut:       12                        # white:blue (GPIO 6) 12
+                6:
+                    label:      'W6'
+                    enabled:     True
+                    i2c_address: 0x36
+                    xshut:       13                        # grey:grey (GPIO 12) 13
+                7:
+                    label:      'NW7'
+                    enabled:     True
+                    i2c_address: 0x37
+                    xshut:       14                        # white:white (GPIO 5) 14
+        devices:                                           # set of availale i2c devices
+          - address:                       0x0C
+            name:        "Digital Potentiometer"
+            required:                      True
+          - address:                       0x0F
+            name:               "Rotary Encoder"
+            required:                      True
+          - address:                       0x10
+            name:                  "PA1010D GPS"
+            required:                     False
+          - address:                       0x15
+            name:                "ThunderBorg 1"
+            required:                      True
+          - address:                       0x16
+            name:                "ThunderBorg 2"
+            required:                      True
+          - address:                       0x18
+            name:                  "IO Expander"
+            required:                     False
+          - address:                       0x1D
+            name:             "LSM303D eCompass"
+            required:                     False
+          - address:                       0x23
+            name:    "LTR-559 Light & Proximity"
+            required:                     False
+          - address:                       0x28
+            name:         "MPU9250 + BMP280 IMU"
+            required:                      True
+          - address:                       0x29
+            name:    "VL53L5CX 8x8 Ranging ToF Sensor"
+            required:                      True
+          - address:                       0x30  # radiozoa N
+            name:       "VL53L0X ToF Sensor (N)"
+            required:                     False
+          - address:                       0x31  # radiozoa NE
+            name:      "VL53L0X ToF Sensor (NE)"
+            required:                     False
+          - address:                       0x32  # radiozoa E
+            name:       "VL53L0X ToF Sensor (E)"
+            required:                     False
+          - address:                       0x33  # radiozoa SE
+            name:      "VL53L0X ToF Sensor (SE)"
+            required:                     False
+          - address:                       0x34  # radiozoa S
+            name:       "VL53L0X ToF Sensor (S)"
+            required:                     False
+          - address:                       0x35  # radiozoa SW
+            name:      "VL53L0X ToF Sensor (SW)"
+            required:                     False
+          - address:                       0x36  # radiozoa W
+            name:       "VL53L0X ToF Sensor (W)"
+            required:                     False
+          - address:                       0x37  # radiozoa NW
+            name:      "VL53L0X ToF Sensor (NW)"
+            required:                     False
+          - address:                       0x38
+            name:                "HT0740 Switch"
+            required:                     False
+          - address:                       0x40
+            name:         "INA260 Power Monitor"
+            required:                     False # TEMP
+          - address:                       0x44
+            name:                       "TinyFX"
+            required:                      True
+          - address:                       0x48
+            name:                  "ADS1015 ADC"
+            required:                      True
+          - address:                       0x49
+            name:          "AS7262 Spectrometer"
+            required:                     False
+          - address:                       0x3C
+            name:                   '1.12" OLED'
+            required:                     False
+          - address:                       0x69
+            name:                 "ICM20948 IMU"
+            required:                     False
+          - address:                       0x74
+            name:     "Starboard 5x5 RGB Matrix"
+            required:                      True
+          - address:                       0x75
+            name:        "Starboard 11x7 Matrix"
+            required:                      True
+          - address:                       0x77
+            name:          "Port 5x5 RGB Matrix"
+            required:                      True
+
+#EOF
