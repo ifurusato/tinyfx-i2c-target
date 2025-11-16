@@ -20,17 +20,17 @@ attachment for a PIR sensor to detect warm moving bodies.
 
 Pimoroni describe it as::
 
-    Tiny FX is an effects controller for the LED dots and strips that can 
-    be found in third-party LEGO®-compatible lighting kits. These LEDs are 
-    connected up by thin, flexible wires that can easily be concealed 
-    around/behind/within your model. Typically they're powered direct from 
-    an alkaline battery pack or USB, so the LEDs are lit all the time - and 
+    Tiny FX is an effects controller for the LED dots and strips that can
+    be found in third-party LEGO®-compatible lighting kits. These LEDs are
+    connected up by thin, flexible wires that can easily be concealed
+    around/behind/within your model. Typically they're powered direct from
+    an alkaline battery pack or USB, so the LEDs are lit all the time - and
     we wanted our illuminated creations to have more smarts!
       — `Pimoroni TinyFX <https://shop.pimoroni.com/products/tinyfx>`_
 
 Installing this library on a Pimoroni TinyFX permits it to be used as an I2C
-target|slave, i.e., it can be controlled remotely from an I2C controller|master 
-such as a Raspberry Pi. Any microcontroller could also be used, but the master's 
+target|slave, i.e., it can be controlled remotely from an I2C controller|master
+such as a Raspberry Pi. Any microcontroller could also be used, but the master's
 I2C implementation (smbus) would need to be replaced.
 
 
@@ -78,7 +78,7 @@ as found at: https://github.com/pimoroni/picofx/actions/runs/19371986148
 
 Installation on the TinyFX is relatively simple: hold down the BOOT button, then
 press RST and release, then release BOOT. This will cause the TinyFX to be mounted
-to your computer. You can then copy or drag-and-drop the distribution file directly 
+to your computer. You can then copy or drag-and-drop the distribution file directly
 onto the mounted drive. It will then reset and update the firmware. You will then
 be able to confirm the installation from the Python REPL::
 
@@ -100,6 +100,9 @@ Status
 
 Support & Liability
 *******************
+
+Please note that this project is an independent work and not associated with
+Pimoroni Ltd.
 
 This project comes with no promise of support or acceptance of liability. Use at
 your own risk.
