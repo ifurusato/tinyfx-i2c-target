@@ -5,6 +5,20 @@ tinyfx-i2c-target: The Pimoroni TinyFX as an I2C Peripheral
 Description
 ***********
 
+The Pimoroni TinyFX is a postage stamp sized board that controls up to six
+channels of LEDs, an RGB LED, plays audio from a speaker, and even has an
+attachment for a PIR sensor to detect warm moving bodies.
+
+Pimoroni describe it as::
+
+    Tiny FX is an effects controller for the LED dots and strips that can 
+    be found in third-party LEGO®-compatible lighting kits. These LEDs are 
+    connected up by thin, flexible wires that can easily be concealed 
+    around/behind/within your model. Typically they're powered direct from 
+    an alkaline battery pack or USB, so the LEDs are lit all the time - and 
+    we wanted our illuminated creations to have more smarts!
+      — `Pimoroni TinyFX <https://shop.pimoroni.com/products/tinyfx>`_
+
 Installing this library on a Pimoroni TinyFX permits it to be used as an I2C
 target|slave, i.e., it can be controlled remotely from an I2C controller|master 
 such as a Raspberry Pi. Any microcontroller could also be used, but the master's 
