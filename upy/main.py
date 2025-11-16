@@ -7,31 +7,24 @@
 #
 # author:   Murray Altheim
 # created:  2025-10-21
-# modified: 2025-10-21
+# modified:  2025-11-16
 
 import sys
 import time
 from i2c_slave import I2CSlave
-from core.logger import Logger, Level
+from controller import Controller
 
-# auto-clear: Remove cached modules to force reload
-for mod in ['main', 'i2c_slave', 'payload']:
-    if mod in sys.modules:
-        del sys.modules[mod]
-
-# ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 def main():
-
-    _slave = None
-    _slave = I2CSlave(level=Level.INFO)
-    _slave.enable()
+    controller = Controller()
+    slave = I2CSlave()
+    slave.add_callback(controller.process)
+    slave.enable()
     try:
         while True:
-            _slave.check_keepalive()
-            time.sleep_ms(50) # check every 50ms
+            time.sleep_ms(50)
     except KeyboardInterrupt:
         print('\nCtrl-C caught; exiting…')
-        _slave.disable()
+        slave.disable()
 
 # auto-start when imported
 main()
