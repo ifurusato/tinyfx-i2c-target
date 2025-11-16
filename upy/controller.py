@@ -26,23 +26,25 @@ class Controller:
             if cmd.lower().startswith("play"):
                 if self._playing:
                     print("playback already in progress, ignoring new 'play' command")
-                    return "BUSY"
+                    return "BSY"
                 print("starting playback thread for command:", cmd)
                 self._playing = True
                 _thread.start_new_thread(self._play_sound, (cmd,))
-            print("returning 'OK'")
+            else:
+                print("cmd: '{}'".format(cmd))
+            print("ctrl: 'OK'")
             return 'OK'
         except Exception as e:
             print("{} raised by controller: {}".format(type(e), e))
-            print("returning 'ERR'")
+            print("crl: 'ERR'")
             return 'ERR'
 
     def _play_sound(self, cmd):
         try:
-            print("playing sound for command:", cmd)
+            print("play: {}".format(cmd))
             # simulate actual playback work
             time.sleep(20)
-            print("finished playing sound for command: {}".format(cmd))
+            print("complete: {}".format(cmd))
         finally:
             self._playing = False
 

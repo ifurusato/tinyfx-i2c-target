@@ -11,8 +11,6 @@
 
 import os, sys
 import time
-import traceback
-import itertools
 import smbus2
 
 # add ./upy/ to sys.path
@@ -21,12 +19,12 @@ if os.path.isdir("upy") and "upy" not in sys.path:
 
 from upy.message_util import pack_message, unpack_message
 
-I2C_BUS = 1
-I2C_ADDR = 0x43
+__I2C_BUS  = 1
+__I2C_ADDR = 0x43
 
 def i2c_write_and_read(bus, address, out_msg):
     bus.write_i2c_block_data(address, 0, list(out_msg))
-    time.sleep(0.005)
+    time.sleep(0.020) # adjust as needed
     resp_buf = bus.read_i2c_block_data(address, 0, 32)
     print('DEBUG: resp_buf =', resp_buf)
     msg_len = resp_buf[0]
@@ -37,15 +35,14 @@ def send_and_receive(bus, address, message):
     out_msg = pack_message(message)
     try:
         resp_bytes = i2c_write_and_read(bus, address, out_msg)
-        response = unpack_message(resp_bytes)
-        return response
+        return unpack_message(resp_bytes)
     except Exception as e:
         print('I2C message error: {}'.format(e))
         return None
 
 def main():
-    print('opening I2C bus {} to address {:#04x}'.format(I2C_BUS, I2C_ADDR))
-    with smbus2.SMBus(I2C_BUS) as bus:
+    print('opening I2C bus {} to address {:#04x}'.format(__I2C_BUS, __I2C_ADDR))
+    with smbus2.SMBus(__I2C_BUS) as bus:
         try:
             while True:
                 user_msg = input('Enter command string to send ("quit" to exit): ')
@@ -53,8 +50,8 @@ def main():
                     break
                 if len(user_msg) == 0:
                     continue
-                response = send_and_receive(bus, I2C_ADDR, user_msg)
-                print('Slave response: {}'.format(response))
+                response = send_and_receive(bus, __I2C_ADDR, user_msg)
+                print('response: {}'.format(response))
         except KeyboardInterrupt:
             print('Ctrl-C caught, exiting…')
         except Exception as e:

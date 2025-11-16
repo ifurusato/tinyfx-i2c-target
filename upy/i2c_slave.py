@@ -61,7 +61,7 @@ class I2CSlave:
                     msg_len = cmd_bytes[0]
                     cut_bytes = cmd_bytes[:msg_len+2]
                     cmd = unpack_message(cut_bytes)
-                print('received from master: {}'.format(cmd))
+#               print('received from master: {}'.format(cmd))
                 response = 'ERR'
                 if self._callback:
                     response = self._callback(cmd)
@@ -71,7 +71,7 @@ class I2CSlave:
                 for i in range(BUFFER_SIZE):
                     self._mem[i] = 0
                 self._mem[:len(resp_bytes)] = resp_bytes
-                print("DEBUG slave resp_bytes:", list(resp_bytes))
+#               print("DEBUG slave resp_bytes:", list(resp_bytes))
                 time.sleep_us(50)
             except Exception as e:
                 print('slave error during irq: {}'.format(e))
@@ -80,6 +80,6 @@ class I2CSlave:
                 for i in range(BUFFER_SIZE):
                     self._mem[i] = 0
                 self._mem[:len(resp_bytes)] = resp_bytes
-                print("ERR DEBUG slave resp_bytes:", list(resp_bytes))
+#               print("ERR DEBUG slave resp_bytes:", list(resp_bytes))
 
 #EOF
