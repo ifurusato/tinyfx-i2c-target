@@ -6,7 +6,7 @@
 # see the LICENSE file included as part of this package.
 #
 # author:   Murray Altheim
-# created:  2025-01-21
+# created:  2025-11-16
 # modified: 2025-11-16
 
 import os, sys
@@ -23,13 +23,24 @@ __I2C_BUS  = 1
 __I2C_ADDR = 0x43
 
 def i2c_write_and_read(bus, address, out_msg):
+    # write to the slave
+    print("out_msg =", list(out_msg))
     bus.write_i2c_block_data(address, 0, list(out_msg))
-    time.sleep(0.020) # adjust as needed
-    resp_buf = bus.read_i2c_block_data(address, 0, 32)
-    print('DEBUG: resp_buf =', resp_buf)
-    msg_len = resp_buf[0]
-    resp_bytes = bytes(resp_buf[:msg_len+2])
-    return resp_bytes
+    # wait a short but sufficient time for the slave to process and prepare the reply
+    time.sleep(0.002)
+    # try up to 2 times to ensure correct, valid response is received.
+    for _ in range(2):
+        resp_buf = bus.read_i2c_block_data(address, 0, 32)
+        print('DEBUG: resp_buf =', resp_buf)
+        msg_len = resp_buf[0]
+        if 1 <= msg_len < 32:
+            # got a plausible length, unpack normally
+            resp_bytes = bytes(resp_buf[:msg_len+2])
+            return resp_bytes
+        # else, brief delay and retry once more
+        time.sleep(0.003)
+    # if still no plausible response, raise as before
+    raise RuntimeError("Bad message length or slave not ready")
 
 def send_and_receive(bus, address, message):
     out_msg = pack_message(message)
