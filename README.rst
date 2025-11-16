@@ -52,6 +52,9 @@ be able to confirm the installation from the Python REPL::
     MicroPython v1.26.1 on 2025-11-14; Pimoroni TinyFX with RP2040
     Type "help()" for more information.
 
+You should see the "MicroPython v1.26.1 on 2025-11-14; Pimoroni TinyFX with RP2040"
+identifier, or a suitable update from Pimoroni.
+
 
 Status
 ******
