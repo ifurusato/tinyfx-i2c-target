@@ -2,6 +2,15 @@
 tinyfx-i2c-target: The Pimoroni TinyFX as an I2C Peripheral
 ***********************************************************
 
+
+.. figure:: ./img/tinyfx.png
+   :width: 645px
+   :height: 503px
+   :align: center
+   :alt: The Pimoroni TinyFX
+
+   The Pimoroni TinyFX.
+
 Description
 ***********
 
