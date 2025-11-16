@@ -6,23 +6,19 @@
 # see the LICENSE file included as part of this package.
 #
 # author:   Murray Altheim
-# created:  2025-01-17
+# created:  2025-11-16
 # modified: 2025-11-16
 
-import sys
-import time
-from machine import I2CTarget
-from machine import Pin
+from machine import I2CTarget, Pin
 
 try:
     from upy.message_util import pack_message, unpack_message
 except ImportError:
     from message_util import pack_message, unpack_message
 
-I2C_ID = 0
-I2C_ADDRESS = 0x43
-# size for worst case (max 255 byte string)
-BUFFER_SIZE = 1 + 255 + 1
+__I2C_ID      = 0
+__I2C_ADDRESS = 0x43
+__BUF_LEN     = 258  # buffer: 1 len + 255 payload + 1 crc + 1 spare
 
 class I2CSlave:
     '''
@@ -30,56 +26,86 @@ class I2CSlave:
     '''
     def __init__(self):
         self._i2c = None
-        self._mem = bytearray(BUFFER_SIZE)
-        self._callback = None
+        self._rx_buf = bytearray(__BUF_LEN)  # preallocated receive buffer
+        self._single_chunk = bytearray(32)   # temp for single received chunk
+        self._rx_len = 0                     # length of last rx
+        self._last_rx_len = 0                # stores rx len for main context
+        init_msg = pack_message("NAK")       # default initial reply (valid packed message)
+        self._tx_buf = bytearray(__BUF_LEN)
+        self._tx_len = len(init_msg)
+        for i in range(self._tx_len):
+            self._tx_buf[i] = init_msg[i]    # initialize with NAK
+        self._new_cmd = False                # set true when a new command is ready
+        self._callback = None                # callback from controller
 
     def enable(self):
-        self._i2c = I2CTarget(I2C_ID, I2C_ADDRESS, mem=self._mem, scl=Pin(17), sda=Pin(16))
-        self._i2c.irq(handler=self._irq_handler, 
-                      trigger=I2CTarget.IRQ_END_READ | I2CTarget.IRQ_END_WRITE, 
-                      hard=False)
-        print('I2C slave enabled at address {:#04x}'.format(I2C_ADDRESS))
+        '''
+        Enables the I2C slave and sets up IRQ handling.
+        '''
+        triggers = (I2CTarget.IRQ_WRITE_REQ | I2CTarget.IRQ_END_WRITE |
+                    I2CTarget.IRQ_READ_REQ | I2CTarget.IRQ_END_READ)
+        self._i2c = I2CTarget(__I2C_ID, __I2C_ADDRESS, scl=Pin(17), sda=Pin(16))
+        self._i2c.irq(self._irq_handler, trigger=triggers, hard=True)
+        print('I2C slave enabled at address {:#04x}'.format(__I2C_ADDRESS))
 
     def disable(self):
+        '''
+        Disables the I2C slave.
+        '''
         if self._i2c:
             self._i2c.deinit()
             self._i2c = None
-            print('I2C slave disabled')
 
     def add_callback(self, callback):
+        '''
+        Registers a callback to process/unpack received commands.
+        The callback accepts a single ASCII string and returns a string response.
+        '''
         self._callback = callback
 
-    def _irq_handler(self, i2c_target):
-        flags = i2c_target.irq().flags()
+    def _irq_handler(self, i2c):
+        flags = i2c.irq().flags()
+        if flags & I2CTarget.IRQ_WRITE_REQ:
+            n = i2c.readinto(self._single_chunk)
+            if n and n > 0:
+                for i in range(n):
+                    self._rx_buf[self._rx_len] = self._single_chunk[i]
+                    self._rx_len += 1
         if flags & I2CTarget.IRQ_END_WRITE:
+            self._new_cmd = True
+            self._last_rx_len = self._rx_len
+            self._rx_len = 0
+        if flags & I2CTarget.IRQ_READ_REQ:
+            i2c.write(self._tx_buf)
+
+    def check_and_process(self):
+        if self._new_cmd:
             try:
-                cmd_bytes = bytes(self._mem[:])
-                try:
-                    cmd = unpack_message(cmd_bytes)
-                except Exception:
-                    # fallback: ignore trailing zero padding, find plausible message length
-                    msg_len = cmd_bytes[0]
-                    cut_bytes = cmd_bytes[:msg_len+2]
-                    cmd = unpack_message(cut_bytes)
-#               print('received from master: {}'.format(cmd))
-                response = 'ERR'
+                raw = self._rx_buf[:self._last_rx_len]
+                if raw and raw[0] == 0 and len(raw) > 1:
+                    rx_bytes = bytes(raw[1:])
+                else:
+                    rx_bytes = bytes(raw)
+                # use rx_bytes for unpack_message()
+                cmd = unpack_message(rx_bytes)
                 if self._callback:
                     response = self._callback(cmd)
+                    if not response:
+                        response = "ACK"
                 else:
-                    response = 'ACK'
-                resp_bytes = pack_message(response)
-                for i in range(BUFFER_SIZE):
-                    self._mem[i] = 0
-                self._mem[:len(resp_bytes)] = resp_bytes
-#               print("DEBUG slave resp_bytes:", list(resp_bytes))
-                time.sleep_us(50)
+                    response = "ACK"
             except Exception as e:
-                print('slave error during irq: {}'.format(e))
-                # send ERR back
-                resp_bytes = pack_message('ERR')
-                for i in range(BUFFER_SIZE):
-                    self._mem[i] = 0
-                self._mem[:len(resp_bytes)] = resp_bytes
-#               print("ERR DEBUG slave resp_bytes:", list(resp_bytes))
+                print("{} raised during unpacking/processing: {}".format(type(e), e))
+                response = "ERR"
+            try:
+                resp_bytes = pack_message(str(response))
+            except Exception as e:
+                print("{} raised during packing response: {}".format(type(e), e))
+                resp_bytes = pack_message("ERR")
+            rlen = len(resp_bytes)
+            for i in range(rlen):
+                self._tx_buf[i] = resp_bytes[i]
+            self._tx_len = rlen
+            self._new_cmd = False
 
 #EOF

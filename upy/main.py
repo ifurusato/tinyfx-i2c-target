@@ -14,7 +14,7 @@ import time
 from i2c_slave import I2CSlave
 from controller import Controller
 
-# auto-clear: Remove cached modules to force reload
+# auto-clear: remove cached modules to force reload
 for mod in ['main', 'i2c_slave']:
     if mod in sys.modules:
         del sys.modules[mod]
@@ -26,7 +26,8 @@ def main():
     slave.enable()
     try:
         while True:
-            time.sleep_ms(50)
+            slave.check_and_process()  # Check for and process new I2C commands (outside IRQ)
+            time.sleep_ms(1)
     except KeyboardInterrupt:
         print('\nCtrl-C caught; exiting…')
         slave.disable()

@@ -14,12 +14,28 @@ import time
 class Controller:
     def __init__(self):
         self._playing = False
+        self._slave = None  # Set once attached by main program
+
+    def set_slave(self, slave):
+        '''
+        Assigns the I2C slave and registers this controller's callback.
+        Should be called by your main program after instantiating both.
+        '''
+        self._slave = slave
+        self._slave.add_callback(self.on_command)
+
+    def on_command(self, cmd):
+        '''
+        Callback invoked by I2C slave when a command is received and processed outside IRQ.
+        Delegates to process() for handling.
+        '''
+        return self.process(cmd)
 
     def process(self, cmd):
         '''
         Processes the callback from the I2C slave, returning 'OK' or 'ERR'.
         "play" commands are executed in a background thread if not already playing.
-        Additional "play" commands during playback are ignored and return 'BUSy'.
+        Additional "play" commands during playback are ignored and return 'BSY'.
         '''
         try:
             print("command received by controller: '{}'".format(cmd))
