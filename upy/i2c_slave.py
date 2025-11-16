@@ -9,6 +9,8 @@
 # created:  2025-11-16
 # modified: 2025-11-16
 
+import time
+import _thread
 from machine import I2CTarget, Pin
 
 try:
@@ -25,33 +27,46 @@ class I2CSlave:
     Constructs an I2C slave at the configured bus (0) and address (0x43).
     '''
     def __init__(self):
+#       self._i2c = None
+#       self._rx_buf = bytearray(__BUF_LEN)  # preallocated receive buffer
+#       self._single_chunk = bytearray(32)   # temp for single received chunk
+#       self._rx_len = 0                     # length of last rx
+#       self._last_rx_len = 0                # stores rx len for main context
+#       init_msg = pack_message("NAK")       # default initial reply (valid packed message)
+#       self._tx_buf = bytearray(__BUF_LEN)
+#       self._tx_len = len(init_msg)
+#       for i in range(self._tx_len):
+#           self._tx_buf[i] = init_msg[i]    # initialize with NAK
+#       self._new_cmd = False                # set true when a new command is ready
+#       self._callback = None                # callback from controller
         self._i2c = None
-        self._rx_buf = bytearray(__BUF_LEN)  # preallocated receive buffer
-        self._single_chunk = bytearray(32)   # temp for single received chunk
-        self._rx_len = 0                     # length of last rx
-        self._last_rx_len = 0                # stores rx len for main context
-        init_msg = pack_message("NAK")       # default initial reply (valid packed message)
+        self._rx_buf = bytearray(__BUF_LEN)
+        self._single_chunk = bytearray(32)
+        self._rx_len = 0
+        self._last_rx_len = 0
+        init_msg = pack_message("NAK")
         self._tx_buf = bytearray(__BUF_LEN)
         self._tx_len = len(init_msg)
         for i in range(self._tx_len):
-            self._tx_buf[i] = init_msg[i]    # initialize with NAK
-        self._new_cmd = False                # set true when a new command is ready
-        self._callback = None                # callback from controller
+            self._tx_buf[i] = init_msg[i]
+        self._new_cmd = False
+        self._callback = None
+        self._running = False
 
     def enable(self):
         '''
-        Enables the I2C slave and sets up IRQ handling.
+        Enables the I2C slave, starts the thread and sets up IRQ handling.
         '''
         triggers = (I2CTarget.IRQ_WRITE_REQ | I2CTarget.IRQ_END_WRITE |
                     I2CTarget.IRQ_READ_REQ | I2CTarget.IRQ_END_READ)
         self._i2c = I2CTarget(__I2C_ID, __I2C_ADDRESS, scl=Pin(17), sda=Pin(16))
         self._i2c.irq(self._irq_handler, trigger=triggers, hard=True)
+        self._running = True
+        _thread.start_new_thread(self._worker, ())
         print('I2C slave enabled at address {:#04x}'.format(__I2C_ADDRESS))
 
     def disable(self):
-        '''
-        Disables the I2C slave.
-        '''
+        self._running = False
         if self._i2c:
             self._i2c.deinit()
             self._i2c = None
@@ -78,34 +93,36 @@ class I2CSlave:
         if flags & I2CTarget.IRQ_READ_REQ:
             i2c.write(self._tx_buf)
 
-    def check_and_process(self):
-        if self._new_cmd:
-            try:
-                raw = self._rx_buf[:self._last_rx_len]
-                if raw and raw[0] == 0 and len(raw) > 1:
-                    rx_bytes = bytes(raw[1:])
-                else:
-                    rx_bytes = bytes(raw)
-                # use rx_bytes for unpack_message()
-                cmd = unpack_message(rx_bytes)
-                if self._callback:
-                    response = self._callback(cmd)
-                    if not response:
+    def _worker(self):
+        while self._running:
+            if self._new_cmd:
+                try:
+                    raw = self._rx_buf[:self._last_rx_len]
+                    if raw and raw[0] == 0 and len(raw) > 1:
+                        rx_bytes = bytes(raw[1:])
+                    else:
+                        rx_bytes = bytes(raw)
+                    cmd = unpack_message(rx_bytes)
+                    if self._callback:
+                        response = self._callback(cmd)
+                        if not response:
+                            response = "ACK"
+                    else:
                         response = "ACK"
-                else:
-                    response = "ACK"
-            except Exception as e:
-                print("{} raised during unpacking/processing: {}".format(type(e), e))
-                response = "ERR"
-            try:
-                resp_bytes = pack_message(str(response))
-            except Exception as e:
-                print("{} raised during packing response: {}".format(type(e), e))
-                resp_bytes = pack_message("ERR")
-            rlen = len(resp_bytes)
-            for i in range(rlen):
-                self._tx_buf[i] = resp_bytes[i]
-            self._tx_len = rlen
-            self._new_cmd = False
+                except Exception as e:
+                    print("{} raised during unpacking/processing: {}".format(type(e), e))
+                    response = "ERR"
+                try:
+                    resp_bytes = pack_message(str(response))
+                except Exception as e:
+                    print("{} raised during packing response: {}".format(type(e), e))
+                    resp_bytes = pack_message("ERR")
+                rlen = len(resp_bytes)
+                for i in range(rlen):
+                    self._tx_buf[i] = resp_bytes[i]
+                self._tx_len = rlen
+                self._new_cmd = False
+            else:
+                time.sleep_ms(1)
 
 #EOF

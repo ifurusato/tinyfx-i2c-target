@@ -26,8 +26,7 @@ def main():
     slave.enable()
     try:
         while True:
-            slave.check_and_process()
-            time.sleep_ms(1)
+            time.sleep(1)
     except KeyboardInterrupt:
         print('\nCtrl-C caught; exiting…')
         slave.disable()

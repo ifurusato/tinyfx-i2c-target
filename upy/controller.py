@@ -8,13 +8,16 @@
 # created:  2025-11-16
 # modified: 2025-11-16
 
-import _thread
 import time
+from tiny_fx import TinyFX
+from colors import*
 
 class Controller:
     def __init__(self):
         self._playing = False
-        self._slave = None  # Set once attached by main program
+        self._slave   = None
+        self._tinyfx  = TinyFX(init_wav=True, wav_root='/sounds')
+        self._rgbled  = self._tinyfx.rgb
 
     def set_slave(self, slave):
         '''
@@ -34,34 +37,46 @@ class Controller:
     def process(self, cmd):
         '''
         Processes the callback from the I2C slave, returning 'OK' or 'ERR'.
-        "play" commands are executed in a background thread if not already playing.
-        Additional "play" commands during playback are ignored and return 'BSY'.
         '''
         try:
             print("command received by controller: '{}'".format(cmd))
             if cmd.lower().startswith("play"):
-                if self._playing:
-                    print("playback already in progress, ignoring new 'play' command")
-                    return "BSY"
-                print("starting playback thread for command:", cmd)
-                self._playing = True
-                _thread.start_new_thread(self._play_sound, (cmd,))
+                self._play_sound(cmd)
+            elif cmd.lower().startswith("color"):
+                self._show_color(cmd)
             else:
                 print("cmd: '{}'".format(cmd))
             print("ctrl: 'OK'")
             return 'OK'
         except Exception as e:
             print("{} raised by controller: {}".format(type(e), e))
-            print("crl: 'ERR'")
+            print("ctrl: 'ERR'")
             return 'ERR'
 
     def _play_sound(self, cmd):
+        print("playing sound for command: {}".format(cmd))
         try:
-            print("play: {}".format(cmd))
-            # simulate actual playback work
-            time.sleep(20)
-            print("complete: {}".format(cmd))
+            self._playing = True
+            parts = cmd.split()
+            if len(parts) < 2:
+                print("ERROR: play command missing sound name.")
+                return
+            sound_name = parts[1]
+            print('playing: {}…'.format(sound_name))
+            file_name = '{}.wav'.format(sound_name)
+            self._tinyfx.wav.play_wav(file_name)
         finally:
             self._playing = False
 
+    def _show_color(self, cmd):
+        parts = cmd.split()
+        if len(parts) < 2:
+            print("ERROR: show color command missing color name.")
+            return
+        color_name = parts[1]
+        print('showing color: {}…'.format(color_name))
+        self._rgbled.set_rgb(*COLOR_GREEN)
+
 #EOF
+
+
