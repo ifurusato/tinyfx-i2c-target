@@ -23,6 +23,15 @@ can type commands::
     color [name]          # set RGB LED to color name (see colors.py)
     play [sound-name]     # play a sound (a *.wav file in sounds directory)
 
+Examples include::
+
+    ch2 on
+    ch3 off
+    all off
+    heartbeat on
+    color violet
+    play beep
+
 Setting the heartbeat or color will disable the other.
 
 The distribution includes two sound files, beep and arming-tone. The latter
