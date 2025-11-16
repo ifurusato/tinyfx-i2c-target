@@ -15,13 +15,13 @@ Usage
 *****
 
 Execute the tinyfx_ctrl.py file to display its command line, from where you
-can type commands:
+can type commands::
 
-  ch[1-6] on|off        # control channels
-  all on|off            # turn all channels on or off (including RGB LED)
-  heartbeat on|off      # blinking RGB LED
-  color [name]          # set RGB LED to color name (see colors.py)
-  play [sound-name]     # play a sound (a *.wav file in sounds directory)
+    ch[1-6] on|off        # control channels
+    all on|off            # turn all channels on or off (including RGB LED)
+    heartbeat on|off      # blinking RGB LED
+    color [name]          # set RGB LED to color name (see colors.py)
+    play [sound-name]     # play a sound (a *.wav file in sounds directory)
 
 Setting the heartbeat or color will disable the other.
 
@@ -70,7 +70,8 @@ Copyright & License
 *******************
 
 All contents (including software, documentation and images) Copyright 2020-2025
-by Murray Altheim. All rights reserved.
+by Ichiro Furusato. All rights reserved.
 
 Software and documentation are distributed under the MIT License, see LICENSE
 file included with project.
+
