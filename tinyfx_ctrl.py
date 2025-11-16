@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright 2020-2025 by Murray Altheim. All rights reserved. This file is part
+# Copyright 2020-2025 by Ichiro Furusato. All rights reserved. This file is part
 # of the Robot Operating System project, released under the MIT License. Please
 # see the LICENSE file included as part of this package.
 #
-# author:   Murray Altheim
+# author:   Ichiro Furusato
 # created:  2025-11-16
 # modified: 2025-11-16
 
@@ -19,8 +19,10 @@ if os.path.isdir("tinyfx") and "tinyfx" not in sys.path:
 
 from tinyfx.message_util import pack_message, unpack_message
 
-__I2C_BUS  = 1
-__I2C_ADDR = 0x43
+# ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+
+__I2C_BUS  = 1      # the I2C bus number; on a Raspberry Pi the default is 1
+__I2C_ADDR = 0x43   # the I2C address used to connect to the TinyFX
 
 def i2c_write_and_read(bus, address, out_msg):
     bus.write_i2c_block_data(address, 0, list(out_msg))

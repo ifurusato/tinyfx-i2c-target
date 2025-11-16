@@ -1,11 +1,11 @@
 #!/micropython
 # -*- coding: utf-8 -*-
 #
-# Copyright 2020-2025 by Murray Altheim. All rights reserved. This file is part
+# Copyright 2020-2025 by Ichiro Furusato. All rights reserved. This file is part
 # of the Robot Operating System project, released under the MIT License. Please
 # see the LICENSE file included as part of this package.
 #
-# author:   Murray Altheim
+# author:   Ichiro Furusato
 # created:  2025-11-16
 # modified: 2025-11-16
 
@@ -63,18 +63,15 @@ class I2CSlave:
 
     def _irq_handler(self, i2c):
         flags = i2c.irq().flags()
-        
         if flags & I2CTarget.IRQ_WRITE_REQ:
             n = i2c.readinto(self._single_chunk)
             if n and n > 0:
                 for i in range(n):
                     self._rx_buf[self._rx_len] = self._single_chunk[i]
                     self._rx_len += 1
-        
         if flags & I2CTarget.IRQ_END_WRITE:
             self._last_rx_len = self._rx_len
             self._new_cmd = True
-        
         if flags & I2CTarget.IRQ_READ_REQ:
             i2c.write(self._tx_buf)
 
@@ -82,11 +79,9 @@ class I2CSlave:
         if self._new_cmd:
             time.sleep_ms(5)  # Small delay to ensure IRQ completes
             self._new_cmd = False
-            
             try:
                 raw = self._rx_buf[:self._last_rx_len]
-                
-                # Skip the first byte (register address from I2C master)
+                # skip the first byte (register address from I2C master)
                 if raw and len(raw) > 1:
                     msg_len = raw[1]  # Length of payload
                     if msg_len > 0 and len(raw) >= msg_len + 3:
@@ -95,27 +90,22 @@ class I2CSlave:
                         rx_bytes = bytes(raw[1:])
                 else:
                     raise ValueError("message too short")
-                
                 cmd = unpack_message(rx_bytes)
-                
                 if self._callback:
                     response = self._callback(cmd)
                     if not response:
                         response = "ACK"
                 else:
                     response = "ACK"
-                    
             except Exception as e:
                 print("{} raised during unpacking/processing: {}".format(type(e), e))
                 response = "ERR"
-            
-            # Clear buffer state for next message
+            # clear buffer state for next message
             self._rx_len = 0
             self._last_rx_len = 0
-            # Clear the buffer contents
+            # clear the buffer contents
             for i in range(__BUF_LEN):
                 self._rx_buf[i] = 0
-            
             try:
                 resp_bytes = pack_message(str(response))
             except Exception as e:

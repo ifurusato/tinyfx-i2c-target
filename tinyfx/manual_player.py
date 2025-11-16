@@ -1,13 +1,13 @@
 #!/micropython
 # -*- coding: utf-8 -*-
 #
-# Copyright 2020-2025 by Murray Altheim. All rights reserved. This file is part
+# Copyright 2020-2025 by Ichiro Furusato. All rights reserved. This file is part
 # of the Robot Operating System project, released under the MIT License. Please
 # see the LICENSE file included as part of this package.
 #
-# author:   Murray Altheim
-# created:  2025-01-16
-# modified: 2025-01-16
+# author:   Ichiro Furusato
+# created:  2025-11-16
+# modified: 2025-11-16
 #
 # A simplified MonoPlayer that doesn't use a Timer thread, allowing manual
 # updates from the main loop to avoid interference with audio playback.
@@ -27,7 +27,9 @@ class ManualPlayer:
 
     @property
     def effects(self):
-        '''Returns a tuple of the current effects.'''
+        '''
+        Returns a tuple of the current effects.
+        '''
         return tuple(self.__effects)
 
     @effects.setter
@@ -37,18 +39,15 @@ class ManualPlayer:
         inherit from Updateable to receive tick() calls.
         '''
         effect_list = effect_list if isinstance(effect_list, list) else [effect_list] * self.__num_leds
-
         if len(effect_list) > self.__num_leds:
             raise ValueError(f"`effect_list` must have a length less or equal to {self.__num_leds}")
-
         self.__updateables = set()
         for i, fx in enumerate(effect_list):
             self.__effects[i] = fx
-            # If the effect is Updateable, add it to the set for ticking
+            # if the effect is Updateable, add it to the set for ticking
             if isinstance(fx, Updateable):
                 self.__updateables.add(fx)
-
-        # Clear out excess effects
+        # clear out excess effects
         if len(effect_list) < self.__num_leds:
             for i in range(len(effect_list), self.__num_leds):
                 self.__effects[i] = None
@@ -58,11 +57,10 @@ class ManualPlayer:
         Manually update all effects and apply them to the LEDs.
         Call this in your main loop with the milliseconds elapsed since last call.
         '''
-        # Tick all updateable effects
+        # tick all updateable effects
         for fx in self.__updateables:
             fx.tick(delta_ms)
-        
-        # Apply brightness to each LED based on effect output
+        # apply brightness to each LED based on effect output
         for i in range(self.__num_leds):
             if self.__effects[i] is not None:
                 self.__leds[i].brightness(self.__effects[i]())

@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
+#!/micropython
 # -*- coding: utf-8 -*-
 #
-# Copyright 2020-2025 by Murray Altheim. All rights reserved. This file is part
+# Copyright 2020-2025 by Ichiro Furusato. All rights reserved. This file is part
 # of the Robot Operating System project, released under the MIT License. Please
 # see the LICENSE file included as part of this package.
 #
-# author:   Murray Altheim
+# author:   Ichiro Furusato
 # created:  2025-11-16
 # modified: 2025-11-16
 
@@ -24,7 +24,7 @@ def calculate_crc8(data):
 
 def pack_message(payload_str):
     '''
-    pack string payload into i2c message: [length][payload_bytes][crc8]
+    Pack a string payload into i2c message: [length][payload_bytes][crc8]
     payload_str: ASCII string (or convertible to bytes)
     returns: bytes object to transmit
     '''
@@ -38,7 +38,7 @@ def pack_message(payload_str):
 
 def unpack_message(msg_bytes):
     '''
-    unpack message from [length][payload][crc8]. Return payload string if CRC ok, else raise ValueError.
+    Unpack message from [length][payload][crc8]. Return payload string if CRC ok, else raise ValueError.
     '''
     if len(msg_bytes) < 2:
         raise ValueError('message too short')
@@ -51,9 +51,5 @@ def unpack_message(msg_bytes):
     if crc_in_msg != crc_check:
         raise ValueError('crc8 mismatch')
     return payload_bytes.decode('ascii')
-
-# Usage notes:
-# To send:   out_bytes = pack_message("PING")
-# To receive: payload = unpack_message(msg_bytes)
 
 #EOF
