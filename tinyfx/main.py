@@ -15,20 +15,25 @@ from i2c_slave import I2CSlave
 from controller import Controller
 
 # auto-clear: remove cached modules to force reload
-for mod in ['main', 'i2c_slave']:
+for mod in ['main', 'i2c_slave', 'controller']:
     if mod in sys.modules:
         del sys.modules[mod]
 
 def main():
-    controller = Controller()
+    blink_channels = [False, False, False, True, False, False] # channel 4 blinks
+    controller = Controller(blink_channels)
     slave = I2CSlave()
     slave.add_callback(controller.process)
     slave.enable()
+    last_time = time.ticks_ms()
     try:
         while True:
+            current_time = time.ticks_ms()
+            delta_ms = time.ticks_diff(current_time, last_time)
+            last_time = current_time
+            controller.tick(delta_ms) 
             slave.check_and_process()
-            time.sleep_ms(1)
-#           time.sleep(1)
+            time.sleep_ms(10)
     except KeyboardInterrupt:
         print('\nCtrl-C caught; exiting…')
         slave.disable()
