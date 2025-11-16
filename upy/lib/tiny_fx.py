@@ -5,8 +5,7 @@
 from machine import ADC, Pin
 from pimoroni_i2c import PimoroniI2C
 from picofx import PWMLED, RGBLED
-#rom audio import WavPlayer
-
+from audio import WavPlayer
 
 class TinyFX:
     OUT_PINS = (3, 2, 4, 5, 8, 9)
@@ -30,7 +29,7 @@ class TinyFX:
     OUTPUT_GAMMA = 2.8
     RGB_GAMMA = 2.2
 
-    def __init__(self, init_i2c=True, init_wav=False, wav_root="/"):
+    def __init__(self, init_i2c=True, init_wav=False, wav_root="/sounds"):
         # Set up the mono and RGB LED outputs
         self.outputs = [PWMLED(out, gamma=self.OUTPUT_GAMMA) for out in self.OUT_PINS]
         self.rgb = RGBLED(*self.RGB_PINS, invert=False, gamma=self.RGB_GAMMA)
@@ -46,8 +45,8 @@ class TinyFX:
         self.__v_sense = ADC(Pin(self.V_SENSE_PIN))
 
         # Set up the wav (and tone) player, if the user wants
-#       if init_wav:
-#           self.wav = WavPlayer(0, self.I2S_BCLK_PIN, self.I2S_LRCLK_PIN, self.I2S_DATA_PIN, self.AMP_EN_PIN, root=wav_root)
+        if init_wav:
+            self.wav = WavPlayer(0, self.I2S_BCLK_PIN, self.I2S_LRCLK_PIN, self.I2S_DATA_PIN, self.AMP_EN_PIN, root=wav_root)
 
     def boot_pressed(self):
         return self.__switch.value() == 0
