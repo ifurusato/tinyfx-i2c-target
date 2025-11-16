@@ -21,9 +21,11 @@ class Controller:
         try:
             print("command received by controller: '{}'".format(cmd))
 
+            print("returning 'OK'")
             return 'OK'
         except Exception as e:
             print("{} raised by controller: {}".format(type(e), e))
+            print("returning 'ERR'")
             return 'ERR'
 
 #EOF

@@ -14,6 +14,11 @@ import time
 from i2c_slave import I2CSlave
 from controller import Controller
 
+# auto-clear: Remove cached modules to force reload
+for mod in ['main', 'i2c_slave']:
+    if mod in sys.modules:
+        del sys.modules[mod]
+
 def main():
     controller = Controller()
     slave = I2CSlave()
