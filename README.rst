@@ -39,6 +39,10 @@ is automatically played with the TinyFX starts up (if it has a connected
 speaker, of course). If you don't want this to occur, comment out the line
 in the constructor.
 
+You can add your own WAV files to the sounds directory. The WAV files must
+be compatible with the TinyFX. Note that the "*.wav" extension is automatically
+added to the sound name.
+
 The PIR sensor functionality currently is not working/has not been tested.
 
 
