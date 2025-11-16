@@ -69,13 +69,18 @@ class Controller:
             self._playing = False
 
     def _show_color(self, cmd):
+        from colors import get_color_by_name
         parts = cmd.split()
         if len(parts) < 2:
             print("ERROR: show color command missing color name.")
             return
         color_name = parts[1]
-        print('showing color: {}…'.format(color_name))
-        self._rgbled.set_rgb(*COLOR_GREEN)
+        color = get_color_by_name(color_name)
+        if color:
+            print('showing color: {}…'.format(color.description))
+            self._rgbled.set_rgb(*color)
+        else:
+            print("ERROR: unknown color name: {}".format(color_name))
 
 #EOF
 

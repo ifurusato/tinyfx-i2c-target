@@ -7,7 +7,7 @@
 #
 # author:   Murray Altheim
 # created:  2024-08-14
-# modified: 2025-05-25
+# modified: 2025-11-16
 #
 # color constants ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 
@@ -31,6 +31,15 @@ class Color:
     @property
     def description(self):
         return self._description
+
+def get_color_by_name(name):
+    '''
+    lookup color by description name (case-insensitive, handles spaces/hyphens).
+    returns Color object or None if not found.
+    '''
+    normalized = name.lower().replace(' ', '-')
+    color_var_name = 'COLOR_{}'.format(normalized.upper().replace('-', '_'))
+    return globals().get(color_var_name)
 
 # define colors
 COLOR_BLACK        = Color(  0,   0,   0, "black")
