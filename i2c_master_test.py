@@ -26,29 +26,11 @@ I2C_ADDR = 0x43
 
 def i2c_write_and_read(bus, address, out_msg):
     bus.write_i2c_block_data(address, 0, list(out_msg))
-    time.sleep(0.001)
+    time.sleep(0.005)
     resp_buf = bus.read_i2c_block_data(address, 0, 32)
     print('DEBUG: resp_buf =', resp_buf)
     msg_len = resp_buf[0]
     resp_bytes = bytes(resp_buf[:msg_len+2])
-    return resp_bytes
-
-def x_i2c_write_and_read(bus, address, out_msg):
-    bus.write_i2c_block_data(address, 0, list(out_msg))
-    time.sleep(0.001)
-    # read in response, up to 32 bytes for max message: [len][data][crc8]
-    # first byte is length; read that first to determine total
-    in_len = bus.read_byte(address)
-    resp = [in_len]
-    # read the rest: payload + crc8
-    resp_rest = bus.read_i2c_block_data(address, 0, in_len + 1)
-    resp += resp_rest
-    resp_bytes = bytes(resp)
-    # read first byte (length)
-    in_len = bus.read_byte(address)
-    # read the rest of the message (payload + crc8) from offset 1
-    resp_rest = bus.read_i2c_block_data(address, 1, in_len + 1)
-    resp_bytes = bytes([in_len]) + bytes(resp_rest)
     return resp_bytes
 
 def send_and_receive(bus, address, message):
