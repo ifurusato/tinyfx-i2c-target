@@ -6,8 +6,8 @@
 # see the LICENSE file included as part of this package.
 #
 # author:   Murray Altheim
-# created:  2025-10-21
-# modified:  2025-11-16
+# created:  2025-11-16
+# modified: 2025-11-16
 
 import sys
 import time
@@ -26,13 +26,14 @@ def main():
     slave.enable()
     try:
         while True:
-            slave.check_and_process()  # Check for and process new I2C commands (outside IRQ)
+            slave.check_and_process()
             time.sleep_ms(1)
     except KeyboardInterrupt:
         print('\nCtrl-C caught; exiting…')
         slave.disable()
 
 # auto-start when imported
+
 main()
 
 #EOF
