@@ -1,11 +1,11 @@
 #!/micropython
 # -*- coding: utf-8 -*-
 #
-# Copyright 2020-2025 by Ichiro Furusato. All rights reserved. This file is part
+# Copyright 2020-2025 by Murray Altheim. All rights reserved. This file is part
 # of the Robot Operating System project, released under the MIT License. Please
 # see the LICENSE file included as part of this package.
 #
-# author:   Ichiro Furusato
+# author:   Murray Altheim
 # created:  2024-08-14
 # modified: 2025-11-16
 #
@@ -43,6 +43,7 @@ def get_color_by_name(name):
 
 # define colors
 COLOR_BLACK        = Color(  0,   0,   0, "black")
+COLOR_WHITE        = Color(255, 255, 255, "white")
 COLOR_RED          = Color(255,   0,   0, "red")
 COLOR_GREEN        = Color(  0, 255,   0, "green")
 COLOR_BLUE         = Color(  0,   0, 255, "blue")
