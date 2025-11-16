@@ -13,11 +13,11 @@ import os, sys
 import time
 import smbus2
 
-# add ./upy/ to sys.path
-if os.path.isdir("upy") and "upy" not in sys.path:
-    sys.path.insert(0, "upy")
+# add ./tinyfx/ to sys.path
+if os.path.isdir("tinyfx") and "tinyfx" not in sys.path:
+    sys.path.insert(0, "tinyfx")
 
-from upy.message_util import pack_message, unpack_message
+from tinyfx.message_util import pack_message, unpack_message
 
 __I2C_BUS  = 1
 __I2C_ADDR = 0x43
