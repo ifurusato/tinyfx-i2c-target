@@ -41,12 +41,12 @@ class Controller:
         self._slave   = None
         self._playing = False
         # channel definitions
-        self._channel1_fx = self._get_channel(blink_channels[0])
-        self._channel2_fx = self._get_channel(blink_channels[1])
-        self._channel3_fx = self._get_channel(blink_channels[2])
-        self._channel4_fx = self._get_channel(blink_channels[3])
-        self._channel5_fx = self._get_channel(blink_channels[4])
-        self._channel6_fx = self._get_channel(blink_channels[5])
+        self._channel1_fx = self._get_channel(1, blink_channels[0])
+        self._channel2_fx = self._get_channel(2, blink_channels[1])
+        self._channel3_fx = self._get_channel(3, blink_channels[2])
+        self._channel4_fx = self._get_channel(4, blink_channels[3])
+        self._channel5_fx = self._get_channel(5, blink_channels[4])
+        self._channel6_fx = self._get_channel(6, blink_channels[5])
         # set up the effects to play
         self._player = ManualPlayer(self._tinyfx.outputs)
         self._player.effects = [
@@ -79,11 +79,18 @@ class Controller:
         self.play('arming-tone')
         print('ready.')
 
-    def _get_channel(self, blinking=False):
+    def _get_channel(self, channel, blinking=False):
+        '''
+        The channel argument is included in case you want to customise what
+        is returned per channel, e.g., channel 1 below.
+        '''
         if blinking:
-            return SettableBlinkFX(speed=0.5, phase=0.0, duty=0.015) # ch4
+            if channel == 1:
+                return SettableBlinkFX(speed=0.5, phase=0.0, duty=0.25)
+            else:
+                return SettableBlinkFX(speed=0.5, phase=0.0, duty=0.015)
         else:
-            return SettableFX(brightness=0.8)   # ch3
+            return SettableFX(brightness=0.8)
 
     def tick(self, delta_ms):
         self._player.update(delta_ms)

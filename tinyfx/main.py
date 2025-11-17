@@ -20,7 +20,7 @@ for mod in ['main', 'i2c_slave', 'controller']:
         del sys.modules[mod]
 
 def main():
-    blink_channels = [False, False, False, True, False, False] # channel 4 blinks
+    blink_channels = [True, False, False, True, False, False] # channel 1 and 4 blinks
     controller = Controller(blink_channels)
     slave = I2CSlave()
     slave.add_callback(controller.process)
