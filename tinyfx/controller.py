@@ -1,11 +1,10 @@
-#!/micropython
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright 2020-2025 by Ichiro Furusato. All rights reserved. This file is part
-# of the Robot Operating System project, released under the MIT License. Please
-# see the LICENSE file included as part of this package.
+# Copyright 2020-2025 by Murray Altheim. All rights reserved. This file is part
+# of the Robot Operating System project, released under the MIT License.
 #
-# author:   Ichiro Furusato
+# author:   Murray Altheim
 # created:  2025-11-16
 # modified: 2025-11-16
 
@@ -20,6 +19,7 @@ from colors import *
 class Controller:
     '''
     A controller for command strings received from the I2CSlave.
+
 
     Commands include:
       play [sound-name]     play a sound
@@ -141,6 +141,7 @@ class Controller:
                         for fx in self._player.effects:
                             fx.set(False)
                         self._heartbeat_enabled = False
+                        self._show_color('color black')
                     else:
                         return 'ERR'
                 else:

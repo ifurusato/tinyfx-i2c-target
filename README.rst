@@ -30,21 +30,46 @@ Pimoroni describe it as:
 
 Installing this library on a Pimoroni TinyFX permits it to be used as an I2C
 target|slave, i.e., it can be controlled remotely from an I2C controller|master
-such as a Raspberry Pi. Any microcontroller could also be used, but the master's
-I2C implementation (smbus) would need to be replaced.
+such as a Raspberry Pi or a microcontroller such as an RP2040, ESP32, STM32, etc.
+
+
+Installation
+************
+
+The target|slave code resides on the TinyFX, so copy the entire contents of the
+tinyfx directory to your TinyFX.
+
+The controller|master code resides on either a Raspberry Pi (tinyfx_ctrl.py) or
+a microcontroller (tinyfx_ctrl_mpy.py).
+
+If using a microcontroller you'll need to copy the tinyfx_ctrl_mpy.py,
+message_util.py and crc8_table.py files to it. You'll also need to modify the
+values for the SDA and SCL pins in tinyfx_ctrl_mpy.py to match the board you're
+using. You may also need to modify the I2C bus number. Consult the documentation
+for your board, there are no defaults that work for all.
 
 
 Usage
 *****
 
-Execute the tinyfx_ctrl.py file to display its command line, from where you
-can type commands::
+From CPython (e.g., a Raspberry Pi), execute the tinyfx_ctrl.py file to display
+its command line, from where you can type commands::
 
     ch[1-6] on|off        # control channels
     all on|off            # turn all channels on or off (including RGB LED)
     heartbeat on|off      # blinking RGB LED
     color [name]          # set RGB LED to color name (see colors.py)
     play [sound-name]     # play a sound (a *.wav file in sounds directory)
+
+From a MicroPython REPL, first type::
+
+   >>> from tinyfx_ctrl_mpy import send
+
+   TinyFX I2C Master Control
+
+   ready for:  send('command')
+
+   >>> send('play beep')
 
 Examples include::
 
