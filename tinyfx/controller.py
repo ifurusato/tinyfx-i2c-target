@@ -86,7 +86,8 @@ class Controller:
         '''
         if blinking:
             if channel == 1:
-                return SettableBlinkFX(speed=0.5, phase=0.0, duty=0.25)
+                # we use a more 'irrational' speed so that the two blinking channels almost never synchronise
+                return SettableBlinkFX(speed=0.66723, phase=0.0, duty=0.25)
             else:
                 return SettableBlinkFX(speed=0.5, phase=0.0, duty=0.015)
         else:
