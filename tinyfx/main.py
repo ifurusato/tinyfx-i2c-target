@@ -15,7 +15,7 @@ from i2c_slave import I2CSlave
 from controller import Controller
 from tinyfx_controller import TinyFxController
 
-__USE_TINYFX = False
+__USE_TINYFX = True # set False to use the generic Controller
 
 # auto-clear: remove cached modules to force reload
 for mod in ['main', 'i2c_slave', 'controller']:
