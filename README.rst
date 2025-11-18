@@ -2,12 +2,12 @@
 tinyfx-i2c-target: The Pimoroni TinyFX as an I2C Peripheral
 ***********************************************************
 
-.. note::
+.. sidebar::
 
     While this library is suitable for controlling a TinyFX there is also a generic
     controller available that you can use for your own purposes. This should work
-    with any RP2040/RP2350 microcontroller board, just be sure to configure it for
-    the correct I2C bus number and SDA/SCL pins as your board.
+    with *any* RP2040/RP2350 microcontroller board, just be sure to configure it
+    for the correct I2C bus number and SDA/SCL pins as your board.
 
 .. figure:: ./img/tinyfx.png
    :width: 645px
