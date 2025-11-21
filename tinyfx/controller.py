@@ -6,15 +6,7 @@
 #
 # author:   Murray Altheim
 # created:  2025-11-16
-# modified: 2025-11-16
-
-from tiny_fx import TinyFX
-from manual_player import ManualPlayer
-from settable import SettableFX
-from settable_blink import SettableBlinkFX
-from pir import PassiveInfrared
-from colors import *
-#from colors import get_color_by_name
+# modified: 2025-11-22
 
 class Controller:
     '''

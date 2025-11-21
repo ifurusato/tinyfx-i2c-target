@@ -77,7 +77,7 @@ class I2CSlave:
 
     def check_and_process(self):
         if self._new_cmd:
-            time.sleep_ms(5)  # Small delay to ensure IRQ completes
+            time.sleep_ms(5) # small delay while IRQ completes
             self._new_cmd = False
             try:
                 raw = self._rx_buf[:self._last_rx_len]
