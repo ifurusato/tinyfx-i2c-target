@@ -13,7 +13,7 @@ import sys
 import time
 from i2c_slave import I2CSlave
 
-__USE_TINYFX = True # set False to use the generic Controller
+__USE_TINYFX = False # set False to use the generic Controller
 
 # auto-clear: remove cached modules to force reload
 for mod in ['main', 'i2c_slave', 'controller', 'tinyfx_controller']:
@@ -45,7 +45,7 @@ def main():
             last_time = current_time
             controller.tick(delta_ms)
             slave.check_and_process()
-            time.sleep_ms(10)
+            time.sleep_ms(1)
     except KeyboardInterrupt:
         print('\nCtrl-C caught; exiting…')
         slave.disable()

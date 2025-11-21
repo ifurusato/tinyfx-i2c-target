@@ -8,6 +8,8 @@
 # created:  2025-11-16
 # modified: 2025-11-22
 
+import random # for sample response
+
 class Controller:
     '''
     A controller for command strings received from the I2CSlave.
@@ -41,6 +43,10 @@ class Controller:
         '''
         pass
 
+    def _get_random_string(self, n=8):
+        chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return ''.join(chars[random.getrandbits(6) % len(chars)] for _ in range(n))
+
     def process(self, cmd):
         '''
         Processes the callback from the I2C slave, returning 'OK' or 'ERR'.
@@ -54,10 +60,14 @@ class Controller:
             _cmd  = parts[0]
             _arg0 = parts[1] if len(parts) > 1 else None
             _arg1 = parts[2] if len(parts) > 2 else None
-            print("command: '{}'; arg0: {}; arg1: {}".format(
-                    _cmd,
-                    "'{}'".format(_arg0) if _arg0 else 'n/a',
-                    "'{}'".format(_arg1) if _arg1 else 'n/a'))
+            if _cmd == 'rand':
+                n = 8 if _arg1 is None else int(_arg1)
+                return self._get_random_string(n)
+            else:
+                print("command: '{}'; arg0: {}; arg1: {}".format(
+                        _cmd,
+                        "'{}'".format(_arg0) if _arg0 else 'n/a',
+                        "'{}'".format(_arg1) if _arg1 else 'n/a'))
             return 'OK'
         except Exception as e:
             print("{} raised by controller: {}".format(type(e), e))
