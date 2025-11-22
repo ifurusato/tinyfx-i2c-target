@@ -109,7 +109,7 @@ Data Requests
 
 Most calls to the I2C target are generally one-way, with an "ACK" or "ERR"
 response. Because of the limitations of what can be done within an interrupt
-request (IRQ), the returned status is actually from the previous request.
+request (IRQ), the returned response is actually from the previous request.
 
 It is possible to retrieve data from the I2C target using a "!" prefix to the
 message. On the TinyFxConteroller there is a placeholder for "!pir"; on the
