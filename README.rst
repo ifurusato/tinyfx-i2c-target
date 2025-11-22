@@ -115,11 +115,11 @@ It is possible to retrieve data from the I2C target using a "!" prefix to the
 message. On the TinyFxConteroller there is a placeholder for "!pir"; on the
 generic controller "!rand" will return a random string.
 
-Use of the "!" prefix will cause three transactions to occur::
+Use of the "!" prefix will cause three transactions to occur:
 
-  1. the call to generate the response string;
-  2. the call to retrieve the response string;
-  3. the call to reset the buffer.
+1. the call to generate the response string;
+2. the call to retrieve the response string;
+3. the call to reset the buffer.
 
 This facility can be extended to return any information from the I2C target.
 
