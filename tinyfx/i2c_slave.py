@@ -27,18 +27,17 @@ class I2CSlave:
     '''
     def __init__(self):
         self._i2c = None
-        self._rx_buf = bytearray(__BUF_LEN)
         self._single_chunk = bytearray(32)
+        self._tx_len = 0
         self._rx_len = 0
         self._last_rx_len = 0
-        init_msg = pack_message("READY")
         self._tx_buf = bytearray(__BUF_LEN)
-        self._tx_len = len(init_msg)
-        for i in range(self._tx_len):
-            self._tx_buf[i] = init_msg[i]
+        self._rx_buf = bytearray(__BUF_LEN)
+        for i in range(__BUF_LEN):
+            self._rx_buf[i] = 0
+        self.set_tx(pack_message("ACK")) 
         self._new_cmd = False
         self._callback = None
-        self._response_consumed = True
 
     @property
     def tx(self):
@@ -49,10 +48,18 @@ class I2CSlave:
         return self._rx_buf[:self._rx_len]
 
     def set_tx(self, value):
-        self._set_buf(self._tx_buf, "_tx_len", value)
+        print("set tx: '{}'".format(value))
+        if isinstance(value, str):
+            value = value.encode()
+        self._tx_buf[:len(value)] = value
+        self._tx_len = len(value)
 
     def set_rx(self, value):
-        self._set_buf(self._rx_buf, "_rx_len", value)
+        print("set rx: '{}'".format(value))
+        if isinstance(value, str):
+            value = value.encode()
+        self._rx_buf[:len(value)] = value
+        self._rx_len = len(value)
 
     def enable(self):
         '''
@@ -92,48 +99,30 @@ class I2CSlave:
 
     def check_and_process(self):
         if self._new_cmd:
-            time.sleep_ms(5) # small delay while IRQ completes
+            time.sleep_ms(5)  # Small delay to ensure IRQ completes
             self._new_cmd = False
             try:
-#               print("rx:  '{}'".format(self.rx))
                 raw = self._rx_buf[:self._last_rx_len]
-#               print("raw: '{}'".format(raw))
                 # skip the first byte (register address from I2C master)
                 if raw and len(raw) > 1:
-                    msg_len = raw[1]  # length of payload
+                    msg_len = raw[1]  # Length of payload
                     if msg_len > 0 and len(raw) >= msg_len + 3:
                         rx_bytes = bytes(raw[1:msg_len + 3])
                     else:
                         rx_bytes = bytes(raw[1:])
                 else:
-                    raise ValueError("message too short")
+                    rx_bytes = bytes('ERROR')
+#                   raise ValueError("message too short")
                 cmd = unpack_message(rx_bytes)
-                # check if this is a RESPOND command
-                if cmd.upper() == "RESPOND":
-                    if self._response_consumed:
-                        response = "STALE"
-                    else:
-                        self._response_consumed = True
-                        # response already in tx_buf, just clear and return
-                        self._rx_len = 0
-                        self._last_rx_len = 0
-                        for i in range(__BUF_LEN):
-                            self._rx_buf[i] = 0
-                        return
-                # regular command processing
                 if self._callback:
                     response = self._callback(cmd)
                     if not response:
                         response = "ACK"
                 else:
                     response = "ACK"
-                self._response_consumed = False
-
             except Exception as e:
-                print("ERROR: {} raised during unpacking/processing: {}".format(type(e), e))
-                response = "ERR:UNPACK"
-                self._response_consumed = False
-
+                print("{} raised during unpacking/processing: {}".format(type(e), e))
+                response = "ERR"
             # clear buffer state for next message
             self._rx_len = 0
             self._last_rx_len = 0
@@ -143,8 +132,8 @@ class I2CSlave:
             try:
                 resp_bytes = pack_message(str(response))
             except Exception as e:
-                print("ERROR: {} raised during packing response: {}".format(type(e), e))
-                resp_bytes = pack_message("ERR:PACK")
+                print("{} raised during packing response: {}".format(type(e), e))
+                resp_bytes = pack_message("ERR")
             rlen = len(resp_bytes)
             for i in range(rlen):
                 self._tx_buf[i] = resp_bytes[i]

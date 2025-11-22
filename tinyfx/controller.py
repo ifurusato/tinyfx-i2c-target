@@ -22,6 +22,7 @@ class Controller:
     a demonstration of how to return data upon a request.
     '''
     def __init__(self):
+        self._chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         self._slave = None
         print('ready.')
 
@@ -47,8 +48,7 @@ class Controller:
         pass
 
     def _get_random_string(self, n=8):
-        chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        return ''.join(chars[random.getrandbits(6) % len(chars)] for _ in range(n))
+        return ''.join(self._chars[random.getrandbits(6) % len(self._chars)] for _ in range(n))
 
     def process(self, cmd):
         '''
@@ -67,7 +67,9 @@ class Controller:
             _arg2 = parts[3] if len(parts) > 3 else None
             if _cmd == 'rand':
                 n = 8 if _arg1 is None else int(_arg1)
-                return self._get_random_string(n)
+                response = self._get_random_string(n)
+                print("generated random '{}'".format(response))
+                return response
             else:
                 print("command: '{}'{}{}{}".format(
                         _cmd,

@@ -122,7 +122,7 @@ class TinyFxController(Controller):
 
     def process(self, cmd):
         '''
-        Processes the callback from the I2C slave, returning 'OK' or 'ERR'.
+        Processes the callback from the I2C slave, returning 'ACK' or 'ERR'.
         '''
         try:
             print("cmd: '{}'".format(cmd))
@@ -154,7 +154,6 @@ class TinyFxController(Controller):
                         fx.set(False)
                     else:
                         return 'ERR'
-                return 'OK'
             elif _command == "heartbeat":
                 if _action == 'on':
                     self._heartbeat_enabled = True
@@ -168,6 +167,7 @@ class TinyFxController(Controller):
             elif _command == "play":
                 self.play(cmd)
             elif _command == "pir":
+                print('PIR')
                 return self._get_pir()
             elif _command == "respond":
                 print('responded')
