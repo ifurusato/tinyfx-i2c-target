@@ -97,10 +97,31 @@ speaker, of course). If you don't want this to occur, comment out the line
 in the constructor.
 
 You can add your own WAV files to the sounds directory. The WAV files must
-be compatible with the TinyFX. Note that the "*.wav" extension is automatically
+be compatible with the TinyFX. Note that the "\*.wav" extension is automatically
 added to the sound name.
 
-The PIR sensor functionality currently is not working/has not been tested.
+The PIR sensor functionality currently is not working/has not been tested (see
+Data Requests below).
+
+
+Data Requests
+*************
+
+Most calls to the I2C target are generally one-way, with an "ACK" or "ERR"
+response. Because of the limitations of what can be done within an interrupt
+request (IRQ), the returned status is actually from the previous request.
+
+It is possible to retrieve data from the I2C target using a "!" prefix to the
+message. On the TinyFxConteroller there is a placeholder for "!pir"; on the
+generic controller "!rand" will return a random string.
+
+Use of the "!" prefix will cause three transactions to occur::
+
+  1. the call to generate the response string;
+  2. the call to retrieve the response string;
+  3. the call to reset the buffer.
+
+This facility can be extended to return any information from the I2C target.
 
 
 Requirements
@@ -129,6 +150,7 @@ identifier, or a suitable update from Pimoroni.
 Status
 ******
 
+* 2025-11-22: supports data requests
 * 2025-11-18: now using TinyFxController with optional generic Controller
 * 2025-11-17: first public release
 
