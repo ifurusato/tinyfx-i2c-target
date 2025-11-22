@@ -48,14 +48,12 @@ class I2CSlave:
         return self._rx_buf[:self._rx_len]
 
     def set_tx(self, value):
-        print("set tx: '{}'".format(value))
         if isinstance(value, str):
             value = value.encode()
         self._tx_buf[:len(value)] = value
         self._tx_len = len(value)
 
     def set_rx(self, value):
-        print("set rx: '{}'".format(value))
         if isinstance(value, str):
             value = value.encode()
         self._rx_buf[:len(value)] = value
@@ -121,7 +119,7 @@ class I2CSlave:
                 else:
                     response = "ACK"
             except Exception as e:
-                print("{} raised during unpacking/processing: {}".format(type(e), e))
+                print("ERROR: {} raised during unpacking/processing: {}".format(type(e), e))
                 response = "ERR"
             # clear buffer state for next message
             self._rx_len = 0
@@ -132,7 +130,7 @@ class I2CSlave:
             try:
                 resp_bytes = pack_message(str(response))
             except Exception as e:
-                print("{} raised during packing response: {}".format(type(e), e))
+                print("ERROR: {} raised during packing response: {}".format(type(e), e))
                 resp_bytes = pack_message("ERR")
             rlen = len(resp_bytes)
             for i in range(rlen):

@@ -41,8 +41,8 @@ Installation
 ************
 
 The target|slave code resides on the TinyFX, so copy the entire contents of the
-tinyfx directory to your TinyFX. The main.py file determines which controller
-will be called when receiving data over I2C::
+tinyfx directory to your TinyFX. The main.py file sets a `__USE_TINYFX` flat that
+determines which controller will be called when receiving data over I2C::
 
    * **TinyFxController**: this handles messages specific to controlling a TinyFX.
    * **Controller**:       this is a generic controller that can either be modified
