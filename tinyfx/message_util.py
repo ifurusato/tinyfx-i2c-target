@@ -44,7 +44,7 @@ def unpack_message(msg_bytes):
         raise ValueError('message too short')
     length = msg_bytes[0]
     if len(msg_bytes) != length + 2:
-        raise ValueError('bad message length')
+        raise ValueError('bad message length (expected {}, got {})'.format(length+2, len(msg_bytes)))
     payload_bytes = msg_bytes[1:1+length]
     crc_in_msg = msg_bytes[-1]
     crc_check = calculate_crc8(msg_bytes[:-1])

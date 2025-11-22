@@ -9,6 +9,7 @@
 # created:  2025-11-16
 # modified: 2025-11-23
 
+import sys
 import time
 from machine import I2CTarget, Pin
 
@@ -36,9 +37,9 @@ class I2CSlave:
         for i in range(__BUF_LEN):
             self._rx_buf[i] = 0
         init_msg = pack_message("ACK")
+        self._tx_len = len(init_msg)
         for i in range(self._tx_len):
             self._tx_buf[i] = init_msg[i]
-        self._tx_len = len(init_msg)
         self._new_cmd = False
         self._callback = None
 
@@ -79,21 +80,31 @@ class I2CSlave:
             i2c.write(self._tx_buf)
 
     def check_and_process(self):
+        WAIT = True # wait for the full message before unpacking
         if self._new_cmd:
             time.sleep_ms(5)  # Small delay to ensure IRQ completes
             self._new_cmd = False
             try:
-                raw = self._rx_buf[:self._last_rx_len]
-                # skip the first byte (register address from I2C master)
-                if raw and len(raw) > 1:
-                    msg_len = raw[1]  # Length of payload
-                    if msg_len > 0 and len(raw) >= msg_len + 3:
-                        rx_bytes = bytes(raw[1:msg_len + 3])
-                    else:
-                        rx_bytes = bytes(raw[1:])
+                if WAIT:
+                    raw = self._rx_buf[:self._last_rx_len]
+                    if len(raw) < 2:  # must have at least register + length
+                        return  # incomplete, wait
+                    msg_len = raw[1]
+                    expected_total = 1 + 1 + msg_len + 1  # reg + length + payload + crc
+                    if len(raw) < expected_total:
+                        return  # full message not yet in buffer
+                    rx_bytes = raw[1:1 + 1 + msg_len + 1]
                 else:
-                    rx_bytes = bytes('ERROR')
-#                   raise ValueError("message too short")
+                    raw = self._rx_buf[:self._last_rx_len]
+                    # skip the first byte (register address from I2C master)
+                    if raw and len(raw) > 1:
+                        msg_len = raw[1]  # Length of payload
+                        if msg_len > 0 and len(raw) >= msg_len + 3:
+                            rx_bytes = bytes(raw[1:msg_len + 3])
+                        else:
+                            rx_bytes = bytes(raw[1:])
+                    else:
+                        raise ValueError("message too short")
                 cmd = unpack_message(rx_bytes)
                 if self._callback:
                     response = self._callback(cmd)
@@ -101,8 +112,10 @@ class I2CSlave:
                         response = "ACK"
                 else:
                     response = "ACK"
+
             except Exception as e:
                 print("ERROR: {} raised during unpacking/processing: {}".format(type(e), e))
+                sys.print_exception(e)
                 response = "ERR"
             # clear buffer state for next message
             self._rx_len = 0
@@ -114,6 +127,7 @@ class I2CSlave:
                 resp_bytes = pack_message(str(response))
             except Exception as e:
                 print("ERROR: {} raised during packing response: {}".format(type(e), e))
+                sys.print_exception(e)
                 resp_bytes = pack_message("ERR")
             rlen = len(resp_bytes)
             for i in range(rlen):
