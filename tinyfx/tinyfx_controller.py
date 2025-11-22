@@ -116,9 +116,9 @@ class TinyFxController(Controller):
 
     def _get_pir(self):
         '''
-        A placeholder for PIR processing, just returns "unknown".
+        A placeholder for PIR processing, just returns "not implemented".
         '''
-        return "unknown"
+        return "not implemented"
 
     def process(self, cmd):
         '''

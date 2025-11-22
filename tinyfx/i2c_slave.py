@@ -7,7 +7,7 @@
 #
 # author:   Ichiro Furusato
 # created:  2025-11-16
-# modified: 2025-11-22
+# modified: 2025-11-23
 
 import time
 from machine import I2CTarget, Pin
@@ -35,29 +35,12 @@ class I2CSlave:
         self._rx_buf = bytearray(__BUF_LEN)
         for i in range(__BUF_LEN):
             self._rx_buf[i] = 0
-        self.set_tx(pack_message("ACK")) 
+        init_msg = pack_message("ACK")
+        for i in range(self._tx_len):
+            self._tx_buf[i] = init_msg[i]
+        self._tx_len = len(init_msg)
         self._new_cmd = False
         self._callback = None
-
-    @property
-    def tx(self):
-        return self._tx_buf[:self._tx_len]
-
-    @property
-    def rx(self):
-        return self._rx_buf[:self._rx_len]
-
-    def set_tx(self, value):
-        if isinstance(value, str):
-            value = value.encode()
-        self._tx_buf[:len(value)] = value
-        self._tx_len = len(value)
-
-    def set_rx(self, value):
-        if isinstance(value, str):
-            value = value.encode()
-        self._rx_buf[:len(value)] = value
-        self._rx_len = len(value)
 
     def enable(self):
         '''

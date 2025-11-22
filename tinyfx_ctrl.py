@@ -47,9 +47,20 @@ def i2c_write_and_read(bus, address, out_msg):
 def send_and_receive(bus, address, message):
     '''
     Send a message and return the response.
+    '''
+    try:
+        response_bytes = i2c_write_and_read(bus, address, pack_message(message))
+        return unpack_message(response_bytes)
+    except Exception as e:
+        print('I2C message error: {}'.format(e))
+        return None
 
-    If the message begins with a '!' character this is treated as a data request,
-    causing three transactions to occur. The first sends the original message but
+def send_and_receive_data(bus, address, message):
+    '''
+    Send a message and return the response as data.
+
+    If the original message begins with a '!' character this is treated as a data
+    request, causing three transactions to occur. The first sends the message but
     its response is thrown away, as it will be an ACK. The second retrieves the
     data, and the third cleans the buffer.
 
@@ -57,21 +68,16 @@ def send_and_receive(bus, address, message):
     to return the status of the current transaction (meaning the response returned
     is always from the previous transaction).
     '''
-    data_request = message.startswith('!')
-    if data_request:
-        message = message[1:]
     try:
-        if data_request:
-            data_request_bytes = i2c_write_and_read(bus, address, pack_message(message))
-#           print("throwaway message: '{}'".format(unpack_message(data_request_bytes)))
-            time.sleep(0.002)
-        response_bytes = i2c_write_and_read(bus, address, pack_message('get'))
+        data_request_bytes = i2c_write_and_read(bus, address, pack_message(message))
+#       print("throwaway message: '{}'".format(unpack_message(data_request_bytes)))
+        time.sleep(0.002)
+        response_bytes = i2c_write_and_read(bus, address, pack_message(message)) # same message but really arbitrary
         data_response = unpack_message(response_bytes)
 #       print("response: '{}'".format(data_response))
-        if data_request:
-            time.sleep(0.002)
-            cleanup_bytes = i2c_write_and_read(bus, address, pack_message('clean'))
-#           print("cleanup message: '{}'".format(unpack_message(cleanup_bytes)))
+        time.sleep(0.002)
+        cleanup_bytes = i2c_write_and_read(bus, address, pack_message('clean'))
+#       print("cleanup message: '{}'".format(unpack_message(cleanup_bytes)))
         return data_response
     except Exception as e:
         print('I2C message error: {}'.format(e))
@@ -87,7 +93,12 @@ def main():
                     break
                 if len(user_msg) == 0:
                     continue
-                response = send_and_receive(bus, __I2C_ADDR, user_msg)
+                data_request = user_msg.startswith('!')
+                if data_request:
+                    user_msg = user_msg[1:]
+                    response = send_and_receive_data(bus, __I2C_ADDR, user_msg)
+                else:
+                    response = send_and_receive(bus, __I2C_ADDR, user_msg)
                 print('response: {}'.format(response))
         except KeyboardInterrupt:
             print('Ctrl-C caught, exiting…')
