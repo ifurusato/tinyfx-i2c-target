@@ -6,7 +6,7 @@
 #
 # author:   Murray Altheim
 # created:  2025-11-16
-# modified: 2025-11-22
+# modified: 2025-11-23
 
 import random # for sample response
 
@@ -70,13 +70,20 @@ class Controller:
                 response = self._get_random_string(n)
                 print("generated random '{}'".format(response))
                 return response
+            elif _cmd == 'get':
+                # return previous response as data
+                return 'ACK'
+            elif _cmd == 'clear':
+                # clear buffer after data request
+                return 'ACK'
             else:
                 print("command: '{}'{}{}{}".format(
                         _cmd,
                         "; arg0: '{}'".format(_arg0) if _arg0 else '',
                         "; arg1: '{}'".format(_arg1) if _arg1 else '',
                         "; arg2: '{}'".format(_arg2) if _arg2 else ''))
-            return 'ACK'
+                return 'ACK'
+#           return 'NACK' # for unsupported commands
         except Exception as e:
             print("{} raised by controller: {}".format(type(e), e))
             return 'ERR'

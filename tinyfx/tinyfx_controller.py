@@ -118,11 +118,14 @@ class TinyFxController(Controller):
         '''
         A placeholder for PIR processing, just returns "not implemented".
         '''
-        return "not implemented"
+        return "NOT_IMPL"
 
     def process(self, cmd):
         '''
-        Processes the callback from the I2C slave, returning 'ACK' or 'ERR'.
+        Processes the callback from the I2C slave, returning 'ACK', 'NACK'
+        or 'ERR'. Data requests are for 'pir' and use three transactions, 
+        the first is followed by 'get' and then 'clear', somewhat arbitrary
+        tokens that return the previous response and then clear the buffer.
         '''
         try:
             print("cmd: '{}'".format(cmd))
@@ -166,14 +169,19 @@ class TinyFxController(Controller):
                 self._show_color(cmd)
             elif _command == "play":
                 self.play(cmd)
-            elif _command == "pir":
-                print('PIR')
-                return self._get_pir()
             elif _command == "respond":
                 print('responded')
                 pass # ignored
+            elif _command == "pir":
+                print('PIR')
+                return self._get_pir()
+            elif _command == "get":
+                return 'ACK' # called on 2nd request for data
+            elif _command == "clear":
+                return 'ACK' # called on 3rd request for data
             else:
                 print("unrecognised command: '{}' (ignored)".format(_command))
+                return 'NACK'
             return 'ACK'
         except Exception as e:
             print("ERROR: {} raised by tinyfx controller: {}".format(type(e), e))

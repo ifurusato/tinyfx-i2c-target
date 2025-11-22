@@ -48,6 +48,7 @@ def send_and_receive(bus, address, message):
     '''
     Send a message and return the response.
     '''
+    print('s&r')
     try:
         response_bytes = i2c_write_and_read(bus, address, pack_message(message))
         return unpack_message(response_bytes)
@@ -62,22 +63,23 @@ def send_and_receive_data(bus, address, message):
     If the original message begins with a '!' character this is treated as a data
     request, causing three transactions to occur. The first sends the message but
     its response is thrown away, as it will be an ACK. The second retrieves the
-    data, and the third cleans the buffer.
+    data, and the third clears the buffer.
 
     This is due to a requirement on slave IRQ processing that limits the ability
     to return the status of the current transaction (meaning the response returned
     is always from the previous transaction).
     '''
+    print('s&rd')
     try:
         data_request_bytes = i2c_write_and_read(bus, address, pack_message(message))
 #       print("throwaway message: '{}'".format(unpack_message(data_request_bytes)))
-        time.sleep(0.002)
-        response_bytes = i2c_write_and_read(bus, address, pack_message(message)) # same message but really arbitrary
+        time.sleep(0.003)
+        response_bytes = i2c_write_and_read(bus, address, pack_message('get')) # same message but really arbitrary
         data_response = unpack_message(response_bytes)
 #       print("response: '{}'".format(data_response))
-        time.sleep(0.002)
-        cleanup_bytes = i2c_write_and_read(bus, address, pack_message('clean'))
-#       print("cleanup message: '{}'".format(unpack_message(cleanup_bytes)))
+        time.sleep(0.003)
+        clear_bytes = i2c_write_and_read(bus, address, pack_message('clear'))
+#       print("cleanup message: '{}'".format(unpack_message(clear_bytes)))
         return data_response
     except Exception as e:
         print('I2C message error: {}'.format(e))
