@@ -17,6 +17,9 @@ class Controller:
     This is a generic controller and simply prints the command
     string to the console. It can be either modified directly
     or subclassed to provide specific application handling.
+
+    This includes a sample method to return a random string, as
+    a demonstration of how to return data upon a request.
     '''
     def __init__(self):
         self._slave = None
@@ -35,7 +38,7 @@ class Controller:
         Callback invoked by I2C slave when a command is received and processed outside IRQ.
         Delegates to process() for handling.
         '''
-        return self._process(cmd)
+        return self.process(cmd)
 
     def tick(self, delta_ms):
         '''
@@ -49,7 +52,8 @@ class Controller:
 
     def process(self, cmd):
         '''
-        Processes the callback from the I2C slave, returning 'OK' or 'ERR'.
+        Processes the callback from the I2C slave, returning 'ACK' or 'ERR'.
+        This will process up to three optional arguments: arg0, arg1, arg2.
         '''
         try:
             print("command string: '{}'".format(cmd))
@@ -60,15 +64,17 @@ class Controller:
             _cmd  = parts[0]
             _arg0 = parts[1] if len(parts) > 1 else None
             _arg1 = parts[2] if len(parts) > 2 else None
+            _arg2 = parts[3] if len(parts) > 3 else None
             if _cmd == 'rand':
                 n = 8 if _arg1 is None else int(_arg1)
                 return self._get_random_string(n)
             else:
-                print("command: '{}'; arg0: {}; arg1: {}".format(
+                print("command: '{}'{}{}{}".format(
                         _cmd,
-                        "'{}'".format(_arg0) if _arg0 else 'n/a',
-                        "'{}'".format(_arg1) if _arg1 else 'n/a'))
-            return 'OK'
+                        "; arg0: '{}'".format(_arg0) if _arg0 else '',
+                        "; arg1: '{}'".format(_arg1) if _arg1 else '',
+                        "; arg2: '{}'".format(_arg2) if _arg2 else ''))
+            return 'ACK'
         except Exception as e:
             print("{} raised by controller: {}".format(type(e), e))
             return 'ERR'

@@ -40,6 +40,20 @@ class I2CSlave:
         self._callback = None
         self._response_consumed = True
 
+    @property
+    def tx(self):
+        return self._tx_buf[:self._tx_len]
+
+    @property
+    def rx(self):
+        return self._rx_buf[:self._rx_len]
+
+    def set_tx(self, value):
+        self._set_buf(self._tx_buf, "_tx_len", value)
+
+    def set_rx(self, value):
+        self._set_buf(self._rx_buf, "_rx_len", value)
+
     def enable(self):
         '''
         Enables the I2C slave and sets up IRQ handling.
@@ -81,10 +95,12 @@ class I2CSlave:
             time.sleep_ms(5) # small delay while IRQ completes
             self._new_cmd = False
             try:
+#               print("rx:  '{}'".format(self.rx))
                 raw = self._rx_buf[:self._last_rx_len]
+#               print("raw: '{}'".format(raw))
                 # skip the first byte (register address from I2C master)
                 if raw and len(raw) > 1:
-                    msg_len = raw[1]  # Length of payload
+                    msg_len = raw[1]  # length of payload
                     if msg_len > 0 and len(raw) >= msg_len + 3:
                         rx_bytes = bytes(raw[1:msg_len + 3])
                     else:
@@ -114,7 +130,7 @@ class I2CSlave:
                 self._response_consumed = False
 
             except Exception as e:
-                print("{} raised during unpacking/processing: {}".format(type(e), e))
+                print("ERROR: {} raised during unpacking/processing: {}".format(type(e), e))
                 response = "ERR:UNPACK"
                 self._response_consumed = False
 
@@ -127,7 +143,7 @@ class I2CSlave:
             try:
                 resp_bytes = pack_message(str(response))
             except Exception as e:
-                print("{} raised during packing response: {}".format(type(e), e))
+                print("ERROR: {} raised during packing response: {}".format(type(e), e))
                 resp_bytes = pack_message("ERR:PACK")
             rlen = len(resp_bytes)
             for i in range(rlen):

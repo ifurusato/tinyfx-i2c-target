@@ -124,9 +124,9 @@ def main():
                 result = send_and_receive(bus, __I2C_ADDR, user_msg, get_result=True)
                 if result:
                     ack, response = result
-                    print('Acknowledgment: {}'.format(ack))
-                    if response:
-                        print('Result: {}'.format(response))
+                    response = response if response else ack
+                    print('response: {}'.format(response))
+
         except KeyboardInterrupt:
             print('\nCtrl-C caught, exiting…')
         except OSError as e:

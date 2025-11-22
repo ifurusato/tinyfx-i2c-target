@@ -13,7 +13,7 @@ import sys
 import time
 from i2c_slave import I2CSlave
 
-__USE_TINYFX = False # set False to use the generic Controller
+__USE_TINYFX = True # set False to use the generic Controller
 
 # auto-clear: remove cached modules to force reload
 for mod in ['main', 'i2c_slave', 'controller', 'tinyfx_controller']:
@@ -34,7 +34,8 @@ def main():
         controller = Controller()
 
     slave = I2CSlave()
-    slave.add_callback(controller.process)
+#   slave.add_callback(controller.process)
+    controller.set_slave(slave)
     slave.enable()
     last_time = time.ticks_ms()
 

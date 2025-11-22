@@ -6,7 +6,7 @@
 #
 # author:   Murray Altheim
 # created:  2025-11-16
-# modified: 2025-11-18
+# modified: 2025-11-22
 
 from tiny_fx import TinyFX
 from manual_player import ManualPlayer
@@ -32,7 +32,7 @@ class TinyFxController(Controller):
     '''
     def __init__(self, blink_channels=None):
         super().__init__()
-#       self._slave   = None
+#       self._slave = None
         if blink_channels is None:
             blink_channels = [False, False, False, False, False, False]
         if len(blink_channels) != 6:
@@ -114,6 +114,12 @@ class TinyFxController(Controller):
                 self._heartbeat_state = True
                 self._heartbeat_timer = 0
 
+    def _get_pir(self):
+        '''
+        A placeholder for PIR processing, just returns "unknown".
+        '''
+        return "unknown"
+
     def process(self, cmd):
         '''
         Processes the callback from the I2C slave, returning 'OK' or 'ERR'.
@@ -161,11 +167,16 @@ class TinyFxController(Controller):
                 self._show_color(cmd)
             elif _command == "play":
                 self.play(cmd)
+            elif _command == "pir":
+                return self._get_pir()
+            elif _command == "respond":
+                print('responded')
+                pass # ignored
             else:
-                print("unrecognised command: '{}' (ignored)".format(cmd))
-            return 'OK'
+                print("unrecognised command: '{}' (ignored)".format(_command))
+            return 'ACK'
         except Exception as e:
-            print("{} raised by controller: {}".format(type(e), e))
+            print("ERROR: {} raised by tinyfx controller: {}".format(type(e), e))
             return 'ERR'
 
     def play(self, cmd):
