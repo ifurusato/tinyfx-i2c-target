@@ -18,9 +18,13 @@ try:
 except ImportError:
     from message_util import pack_message, unpack_message
 
+__IS_STM32    = False
+__IS_ESP32    = False
+
 __I2C_ID      = 0
 __I2C_ADDRESS = 0x43
 __BUF_LEN     = 258
+
 
 class I2CSlave:
     '''
@@ -49,8 +53,20 @@ class I2CSlave:
         '''
         triggers = (I2CTarget.IRQ_WRITE_REQ | I2CTarget.IRQ_END_WRITE |
                     I2CTarget.IRQ_READ_REQ | I2CTarget.IRQ_END_READ)
-        self._i2c = I2CTarget(__I2C_ID, __I2C_ADDRESS, scl=Pin(17), sda=Pin(16))
+        if __IS_STM32:
+            __I2C_ID  = 1 # configure for your board; pins are pre-set for each bus
+            self._i2c = I2CTarget(__I2C_ID, __I2C_ADDRESS)
+        elif __IS_ESP32:
+
+            # AttributeError: type object 'I2CTarget' has no attribute 'IRQ_WRITE_REQ'
+
+            # this configuration is for the UM TinyS3; configure for your board
+            self._i2c = I2CTarget(__I2C_ID, __I2C_ADDRESS, scl=Pin(9), sda=Pin(8))
+        else: # RP2040
+            self._i2c = I2CTarget(__I2C_ID, __I2C_ADDRESS, scl=Pin(17), sda=Pin(16))
+
         self._i2c.irq(self._irq_handler, trigger=triggers, hard=True)
+
         print('I2C slave enabled at address {:#04x}'.format(__I2C_ADDRESS))
 
     def disable(self):

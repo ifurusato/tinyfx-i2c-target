@@ -73,11 +73,11 @@ def send_and_receive_data(bus, address, message):
     try:
         data_request_bytes = i2c_write_and_read(bus, address, pack_message(message))
 #       print("throwaway message: '{}'".format(unpack_message(data_request_bytes)))
-        time.sleep(0.003)
+        time.sleep(0.005)
         response_bytes = i2c_write_and_read(bus, address, pack_message('get')) # same message but really arbitrary
         data_response = unpack_message(response_bytes)
 #       print("response: '{}'".format(data_response))
-        time.sleep(0.003)
+        time.sleep(0.005)
         clear_bytes = i2c_write_and_read(bus, address, pack_message('clear'))
 #       print("cleanup message: '{}'".format(unpack_message(clear_bytes)))
         return data_response
