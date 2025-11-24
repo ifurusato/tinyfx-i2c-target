@@ -49,7 +49,7 @@ def unpack_message(msg_bytes):
     crc_in_msg = msg_bytes[-1]
     crc_check = calculate_crc8(msg_bytes[:-1])
     if crc_in_msg != crc_check:
-        raise ValueError('crc8 mismatch ({} != {})'.format(crc_in_msg,crc_check))
+        raise ValueError('crc8 mismatch')
     return payload_bytes.decode('ascii')
 
 #EOF
