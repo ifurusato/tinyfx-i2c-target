@@ -12,6 +12,7 @@
 import os, sys
 import time
 import smbus2
+import traceback
 
 # add ./tinyfx/ to sys.path
 if os.path.isdir("tinyfx") and "tinyfx" not in sys.path:
@@ -48,12 +49,11 @@ def send_and_receive(bus, address, message):
     '''
     Send a message and return the response.
     '''
-    print('s&r')
     try:
         response_bytes = i2c_write_and_read(bus, address, pack_message(message))
         return unpack_message(response_bytes)
     except Exception as e:
-        print('I2C message error: {}'.format(e))
+        print('{} raised sending and receiving message: {}\n{}'.format(type(e), e, traceback.format_exc()))
         return None
 
 def send_and_receive_data(bus, address, message):
@@ -69,7 +69,6 @@ def send_and_receive_data(bus, address, message):
     to return the status of the current transaction (meaning the response returned
     is always from the previous transaction).
     '''
-    print('s&rd')
     try:
         data_request_bytes = i2c_write_and_read(bus, address, pack_message(message))
 #       print("throwaway message: '{}'".format(unpack_message(data_request_bytes)))
@@ -82,7 +81,7 @@ def send_and_receive_data(bus, address, message):
 #       print("cleanup message: '{}'".format(unpack_message(clear_bytes)))
         return data_response
     except Exception as e:
-        print('I2C message error: {}'.format(e))
+        print('{} raised sending and receiving data message: {}\n{}'.format(type(e), e, traceback.format_exc()))
         return None
 
 def main():
